@@ -137,12 +137,21 @@ void IlaSim::state_update_decl(std::stringstream& state_update_function,
                    std::to_string(updated_state->sort()->bit_width()) + "> ");
   if (qemu_device_)
     return_type =
-        (updated_state->is_bv())
-            ? ("uint" + std::to_string(updated_state->sort()->bit_width()) +
-               "_t ")
-            : return_type;
-  std::string arg_list =
-      (updated_state->is_mem()) ? "(std::map<int, int>& mem_update_map)" : "()";
+        (updated_state->is_bool()) ? "bool " :
+        (updated_state->is_mem()) ? "void " :
+             ("uint" + std::to_string(updated_state->sort()->bit_width()) +
+               "_t ");
+  std::string arg_list;
+  if (qemu_device_) { 
+    if (updated_state->is_mem()) {
+      auto mem_addr_width = updated_state->sort()->addr_width();
+      auto mem_data_width = updated_state->sort()->data_width(); 
+      arg_list = ("(std::map<uint" + std::to_string(mem_addr_width) + "_t, uint" + std::to_string(mem_data_width) +  "_t>& mem_update_map)"); 
+    } else {
+      arg_list = "()"; 
+    }
+  } else
+    arg_list = (updated_state->is_mem()) ? "(std::map<int, int>& mem_update_map)" : "()";
   state_update_function << indent << return_type << model_ptr_->name()
                         << "::" << state_update_func_name << arg_list << " {"
                         << std::endl;
@@ -151,9 +160,15 @@ void IlaSim::state_update_decl(std::stringstream& state_update_function,
       (updated_state->is_mem()) ? indent + "mem_update_map.clear();\n" : "";
   state_update_function << pre_dfs;
 
-  if (updated_state->is_mem())
-    header_ << header_indent_ << "std::map<int, int> " << state_update_func_name
+  if (updated_state->is_mem()) {
+    auto mem_addr_width = updated_state->sort()->addr_width();
+    auto mem_data_width = updated_state->sort()->data_width();  
+    if (qemu_device_)
+      header_ << header_indent_ << "std::map<uint" << mem_addr_width << "_t, uint" << mem_data_width << "_t> " << state_update_func_name << "_map;" << std::endl; 
+    else
+      header_ << header_indent_ << "std::map<int, int> " << state_update_func_name
             << "_map;" << std::endl;
+  }
 
   header_ << header_indent_ << return_type << state_update_func_name << arg_list
           << ";" << std::endl;

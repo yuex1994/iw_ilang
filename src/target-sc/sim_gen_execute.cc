@@ -162,11 +162,18 @@ void IlaSim::execute_update_state(std::stringstream& execute_kernel,
   if (updated_state->is_mem()) {
     if (EXTERNAL_MEM_)
       return;
-    execute_kernel << indent << "for (std::map<int, int>::iterator it = "
-                   << mem_update_map << ".begin(); it != " << mem_update_map
-                   << ".end(); it++) {" << std::endl;
+    auto mem_addr_width = updated_state->sort()->addr_width();
+    auto mem_data_width = updated_state->sort()->data_width();
+    if (qemu_device_)
+      execute_kernel << indent << "for (std::map<uint" << mem_addr_width << "_t, uint"
+                     << mem_data_width << "_t>::iterator it = " << mem_update_map << ".begin(); it != "<< mem_update_map
+                     << ".end(); it++) {" << std::endl; 
+    else
+      execute_kernel << indent << "for (std::map<int, int>::iterator it = "
+                     << mem_update_map << ".begin(); it != " << mem_update_map
+                     << ".end(); it++) {" << std::endl;
     increase_indent(indent);
-    execute_kernel << indent << updated_state_name << "[it->first] = "
+    execute_kernel << indent << updated_state_name << "[static_cast<uint32_t> (it->first)] = "
                    << "it->second;" << std::endl;
     decrease_indent(indent);
     execute_kernel << indent << "}" << std::endl;

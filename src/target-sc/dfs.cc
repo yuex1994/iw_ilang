@@ -262,7 +262,7 @@ void IlaSim::dfs_binary_op_non_mem(std::stringstream& dfs_simulator,
                                                                    AST_UID_EXPR_OP::
                                                                        CONCAT)
                                                                       ? " , "
-                                                                      : (GetUideExprOp(
+                                                                      : (GetUidExprOp(
                                                                              expr) ==
                                                                          AST_UID_EXPR_OP::
                                                                              UREM)
@@ -349,8 +349,8 @@ void IlaSim::dfs_binary_op_mem(std::stringstream& dfs_simulator,
                     << std::endl;
       dfs_simulator << indent << "}" << std::endl;
     } else
-      dfs_simulator << indent << out_str << " = " << arg0_str << "[" << arg1_str
-                    << "];" << std::endl;
+      dfs_simulator << indent << out_str << " = " << arg0_str << "[static_cast<uint32_t> (" << arg1_str
+                    << ")];" << std::endl;
   } else {
     std::string arg2_str = get_arg_str(expr->arg(2));
     if (qemu_device_)
@@ -360,8 +360,13 @@ void IlaSim::dfs_binary_op_mem(std::stringstream& dfs_simulator,
       arg2_str = (arg2_str == "true")
                      ? "1"
                      : (arg2_str == "false") ? "0" : arg2_str + ".to_int()";
-    dfs_simulator << indent << "mem_update_map[" << arg1_str
-                  << "] = " << arg2_str << ";" << std::endl;
+    if (qemu_device_)
+      dfs_simulator << indent << "mem_update_map[" << arg1_str
+                    << "] = " << arg2_str << ";" << std::endl;
+    else
+      dfs_simulator << indent << "mem_update_map[" << arg1_str
+                    << "] = " << arg2_str << ";" << std::endl;
+
   }
 }
 
@@ -493,6 +498,7 @@ void IlaSim::dfs_func_op(std::stringstream& dfs_simulator, std::string& indent,
                   : "";
   declare_variable_with_id(id, out_type_str, out_str);
   dfs_simulator << indent << out_str << " = " << func_name << "(";
+
   for (unsigned int i = 0; i < appfunc_expr->arg_num(); i++) {
     if (i != 0)
       dfs_simulator << ", ";

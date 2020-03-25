@@ -22,8 +22,8 @@ project(ilang VERSION     1.0.2
 # ---------------------------------------------------------------------------- #
 option(ILANG_FETCH_DEPS  "Fetch source of dependencies at config time."      ON)
 option(ILANG_BUILD_DOCS  "Build documentations."                            OFF)
-option(ILANG_BUILD_SYNTH "Build the synthesis engine."                       ON)
-option(ILANG_INSTALL_DEV "Install dev features."                            OFF)
+option(ILANG_BUILD_SYNTH "Build the synthesis engine."                      OFF)
+option(ILANG_INSTALL_DEV "Install dev features."                             ON)
 option(ILANG_EXPORT_PACKAGE "Export CMake package if enabled."              OFF)
 option(ILANG_COVERITY    "Build for Coverity static analysis."              OFF)
 option(BUILD_SHARED_LIBS "Build shared libraries."                           ON)
@@ -50,6 +50,7 @@ set(ILANG_TARGETS_EXPORT_NAME        "${PROJECT_NAME}Targets")
 set(ILANG_CMAKE_CONFIG_TEMPLATE      "cmake/config.cmake.in")
 set(ILANG_CMAKE_CONFIG_DIR           "${CMAKE_CURRENT_BINARY_DIR}")
 set(ILANG_CMAKE_PROJECT_TARGETS_FILE "${PROJECT_NAME}Targets.cmake")
+set(CMAKE_BUILD_TYPE Debug)
 
 set(ILANG_CMAKE_VERSION_CONFIG_FILE  
   "${ILANG_CMAKE_CONFIG_DIR}/${PROJECT_NAME}ConfigVersion.cmake")

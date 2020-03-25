@@ -6,6 +6,7 @@
 namespace ilang {
 
 void IlaSim::create_decode(const InstrPtr& instr_expr) {
+
   std::stringstream decode_function;
   std::string indent = "";
   std::string decode_func_name;
@@ -24,6 +25,7 @@ void IlaSim::create_decode(const InstrPtr& instr_expr) {
   valid_expr->DepthFirstVisit(DfsKernel);
   decode_check_valid(decode_function, indent, valid_expr, instr_expr);
   decode_expr->DepthFirstVisit(DfsKernel);
+
   decode_return(decode_function, indent, decode_expr, instr_expr);
 
   decrease_indent(indent);
