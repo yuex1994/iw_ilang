@@ -6,13 +6,19 @@
 namespace ilang {
 
 void IlaSim::create_state_update(const InstrPtr& instr_expr) {
+  std::stringstream state_update_function;
+  std::string indent = "";
+  std::string instr_name = instr_expr->host()->name().str() + "_" +
+                           instr_expr->name().str();  
+  std::string state_update_func_name;
+  state_update_func_name = "decode_" + instr_expr->host()->name().str() + 
+                           "_" + instr_expr->name().str() + "_update";
+  state_update_decl(state_update_function, indent, state_update_func_name);
   for (auto updated_state_name : instr_expr->updated_states()) {
-    std::stringstream state_update_function;
-    std::string indent = "";
-    std::string state_update_func_name;
     auto update_expr = instr_expr->update(updated_state_name);
     auto update_expr_id = update_expr->name().id();
     auto updated_state = instr_expr->host()->state(updated_state_name);
+    /*
     if (readable_)
       state_update_func_name = "decode_" + instr_expr->host()->name().str() +
                                "_" + instr_expr->name().str() + "_update_" +
@@ -23,23 +29,24 @@ void IlaSim::create_state_update(const InstrPtr& instr_expr) {
           "decode_" + std::to_string(instr_expr->decode()->name().id()) +
           "_update_" + updated_state->host()->name().str() + "_" +
           updated_state->name().str();
-
+    */
     ILA_CHECK(!load_from_store_analysis(update_expr))
         << "Load-after-store is not supported in sc-target generation";
     bool state_not_updated = updated_state->name().id() == update_expr_id;
     if (state_not_updated)
       continue;
-    state_update_decl(state_update_function, indent, updated_state, update_expr,
-                      state_update_func_name);
     auto DfsKernel = [this, &state_update_function, &indent](const ExprPtr& e) {
       dfs_kernel(state_update_function, indent, e);
     };
     update_expr->DepthFirstVisit(DfsKernel);
     state_update_return(state_update_function, indent, updated_state,
                         update_expr);
-    state_update_export(state_update_function, state_update_func_name);
-    state_update_mk_file(state_update_func_name);
   }
+  decrease_indent(indent);
+  state_update_function << indent << "};" << std::endl;
+  state_update_export(state_update_function, instr_name);
+  state_update_mk_file(instr_name);
+ 
 }
 
 void IlaSim::mem_state_update_decl(std::stringstream& state_update_function,
@@ -112,14 +119,13 @@ void IlaSim::state_update_mk_file(std::string& state_update_func_name) {
 
 void IlaSim::state_update_decl(std::stringstream& state_update_function,
                                std::string& indent,
-                               const ExprPtr& updated_state,
-                               const ExprPtr& update_expr,
                                std::string& state_update_func_name) {
   searched_id_set_.clear();
   if (!qemu_device_)
     state_update_function << indent << "#include \"systemc.h\"" << std::endl;
   state_update_function << indent << "#include \"" << model_ptr_->name()
                         << ".h\"" << std::endl;
+  /*
   if (updated_state->is_mem()) {
     auto MemStateUpdateDecl = [this, &state_update_function,
                                &indent](const ExprPtr& e) {
@@ -127,7 +133,7 @@ void IlaSim::state_update_decl(std::stringstream& state_update_function,
     };
     update_expr->DepthFirstVisit(MemStateUpdateDecl);
   }
-
+  
   std::string return_type =
       (updated_state->is_bool())
           ? "bool "
@@ -135,6 +141,9 @@ void IlaSim::state_update_decl(std::stringstream& state_update_function,
                 ? "void "
                 : ("sc_biguint<" +
                    std::to_string(updated_state->sort()->bit_width()) + "> ");
+  */
+  std::string return_type = "void ";
+  /*
   if (qemu_device_)
     return_type =
         (updated_state->is_bool()) ? "bool " :
@@ -152,14 +161,18 @@ void IlaSim::state_update_decl(std::stringstream& state_update_function,
     }
   } else
     arg_list = (updated_state->is_mem()) ? "(std::map<int, int>& mem_update_map)" : "()";
+  */
+  std::string arg_list = "()";
   state_update_function << indent << return_type << model_ptr_->name()
                         << "::" << state_update_func_name << arg_list << " {"
                         << std::endl;
   increase_indent(indent);
+  /*
   std::string pre_dfs =
       (updated_state->is_mem()) ? indent + "mem_update_map.clear();\n" : "";
   state_update_function << pre_dfs;
-
+  */
+  /*
   if (updated_state->is_mem()) {
     auto mem_addr_width = updated_state->sort()->addr_width();
     auto mem_data_width = updated_state->sort()->data_width();  
@@ -169,10 +182,10 @@ void IlaSim::state_update_decl(std::stringstream& state_update_function,
       header_ << header_indent_ << "std::map<int, int> " << state_update_func_name
             << "_map;" << std::endl;
   }
-
+  */
   header_ << header_indent_ << return_type << state_update_func_name << arg_list
           << ";" << std::endl;
-
+  /*
   if ((updated_state->is_mem()) && (EXTERNAL_MEM_)) {
     header_ << header_indent_ << "int " << state_update_func_name << "_iter"
             << std::endl;
@@ -184,6 +197,7 @@ void IlaSim::state_update_decl(std::stringstream& state_update_function,
     store_info.mem_str = mem_str;
     external_st_set_.push_back(store_info);
   }
+  */
 }
 
 void IlaSim::state_update_return(std::stringstream& state_update_function,
@@ -191,6 +205,7 @@ void IlaSim::state_update_return(std::stringstream& state_update_function,
                                  const ExprPtr& updated_state,
                                  const ExprPtr& update_expr) {
   std::string return_str;
+  std::cout << "return a: " << return_str << std::endl;
   if (GetUidExpr(update_expr) == AST_UID_EXPR::VAR)
     return_str =
         update_expr->host()->name().str() + "_" + update_expr->name().str();
@@ -205,11 +220,14 @@ void IlaSim::state_update_return(std::stringstream& state_update_function,
     else
       return_str = "";
   }
-  if (!updated_state->is_mem())
-    state_update_function << indent << "return " << return_str << ";"
-                          << std::endl;
-  decrease_indent(indent);
-  state_update_function << indent << "};" << std::endl;
+  std::cout << "return b: " << return_str << std::endl;
+  std::cout << "expr: " << indent << updated_state->host()->name().str() << std::endl;
+  if (!updated_state->is_mem()) {
+    state_update_function << indent << updated_state->host()->name().str() 
+                          << "_" << updated_state->name().str() << "_next = "
+                          << return_str << ";" << std::endl;
+  }
+  return;
 }
 
 }; // namespace ilang

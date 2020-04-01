@@ -101,8 +101,7 @@ private:
 
   void create_state_update(const InstrPtr& instr_expr);
   void state_update_decl(std::stringstream& state_update_function,
-                         std::string& indent, const ExprPtr& updated_state,
-                         const ExprPtr& update_expr,
+                         std::string& indent, 
                          std::string& state_update_func_name);
   void state_update_return(std::stringstream& state_update_function,
                            std::string& indent, const ExprPtr& updated_state,
@@ -125,8 +124,8 @@ private:
                       const InstrPtr& instr_expr);
   void execute_state_update_func(std::stringstream& execute_kernel,
                                  std::string& indent,
-                                 const InstrPtr& instr_expr,
-                                 const ExprPtr& updated_state);
+                                 const InstrPtr& instr_expr
+                                 );
   void execute_update_state(std::stringstream& execute_kernel,
                             std::string& indent, const InstrPtr& instr_expr,
                             const ExprPtr& updated_state);

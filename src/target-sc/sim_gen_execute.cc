@@ -61,6 +61,8 @@ void IlaSim::execute_instruction(std::stringstream& execute_kernel,
   auto decode = instr_expr->decode();
   execute_decode(execute_kernel, indent, instr_expr);
   increase_indent(indent);
+  execute_state_update_func(execute_kernel, indent, instr_expr);
+  /*
   for (auto updated_state_name : instr_expr->updated_states()) {
     auto updated_state = instr_expr->host()->state(updated_state_name);
     auto update_expr = instr_expr->update(updated_state_name);
@@ -69,6 +71,7 @@ void IlaSim::execute_instruction(std::stringstream& execute_kernel,
     execute_state_update_func(execute_kernel, indent, instr_expr,
                               updated_state);
   }
+  */
   if (EXTERNAL_MEM_)
     execute_external_mem_load_begin(execute_kernel, indent, instr_expr);
   for (auto updated_state_name : instr_expr->updated_states()) {
@@ -105,8 +108,8 @@ void IlaSim::execute_decode(std::stringstream& execute_kernel,
 
 void IlaSim::execute_state_update_func(std::stringstream& execute_kernel,
                                        std::string& indent,
-                                       const InstrPtr& instr_expr,
-                                       const ExprPtr& updated_state) {
+                                       const InstrPtr& instr_expr) {
+  /*
   std::string updated_state_type =
       (updated_state->is_bool())
           ? "bool "
@@ -122,7 +125,7 @@ void IlaSim::execute_state_update_func(std::stringstream& execute_kernel,
             : updated_state_type;
   std::string updated_state_name =
       updated_state->host()->name().str() + "_" + updated_state->name().str();
-
+  */
   std::string decode_func_name;
   if (readable_)
     decode_func_name = "decode_" + instr_expr->host()->name().str() + "_" +
@@ -131,15 +134,16 @@ void IlaSim::execute_state_update_func(std::stringstream& execute_kernel,
     decode_func_name =
         "decode_" + std::to_string(instr_expr->decode()->name().id());
   std::string state_update_func_name =
-      decode_func_name + "_update_" + updated_state_name;
-  std::string mem_update_map = state_update_func_name + "_map";
-  if (updated_state->is_mem())
-    execute_kernel << indent << state_update_func_name << "(" << mem_update_map
-                   << ");" << std::endl;
-  else
-    execute_kernel << indent << updated_state_type << updated_state_name
-                   << "_next = " << state_update_func_name << "();"
-                   << std::endl;
+      decode_func_name + "_update";
+  // std::string mem_update_map = state_update_func_name + "_map";
+//  if (updated_state->is_mem())
+//    execute_kernel << indent << state_update_func_name << "(" << mem_update_map
+//                   << ");" << std::endl;
+//  else
+//    execute_kernel << indent << updated_state_type << updated_state_name
+//                   << "_next = " << state_update_func_name << "();"
+//                   << std::endl;
+    execute_kernel << indent << state_update_func_name << "();" << std::endl;
 }
 
 void IlaSim::execute_update_state(std::stringstream& execute_kernel,
