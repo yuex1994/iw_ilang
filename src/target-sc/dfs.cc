@@ -348,11 +348,36 @@ void IlaSim::dfs_binary_op_mem(std::stringstream& dfs_simulator,
       dfs_simulator << indent << "  cout << \"Error: Load wrong\" << endl;"
                     << std::endl;
       dfs_simulator << indent << "}" << std::endl;
-    } else
-      dfs_simulator << indent << out_str << " = " << arg0_str << "[static_cast<uint32_t> (" << arg1_str
-                    << ")];" << std::endl;
+    } else {
+      if (arg0_uid == AST_UID_EXPR::VAR)  {
+        dfs_simulator << indent << out_str << " = " << arg0_str << "[static_cast<uint32_t> (" << arg1_str
+                      << ")];" << std::endl;
+      } else {
+        dfs_simulator << indent << out_str << " = (" << arg0_str 
+                      << ".update_map.find(" << arg1_str << ") == " << arg0_str
+                      << ".update_map.end()) ? " << arg0_str 
+                      << ".original_map[static_cast<uint32_t> (" << arg1_str
+                      << ")] : " << arg0_str << ".update_map[" << arg1_str 
+                      << "];" << std::endl; 
+      }
+    }
   } else {
+    if (qemu_device_) {
+      std::string arg0_str = get_arg_str(expr->arg(0));
+      out_type_str = mem_var_type[arg0_str]; 
+      mem_var_type[out_str] = out_type_str;
+      if (arg0_uid == AST_UID_EXPR::VAR) {
+        dfs_simulator << indent << out_type_str << " " << out_str 
+                      << ";" << std::endl;
+        dfs_simulator << indent << out_str << ".original_map = " << arg0_str
+                      << ";" << std::endl; 
+      } else {
+        dfs_simulator << indent << out_type_str << " " << out_str 
+                      << "(" << arg0_str << ")" << std::endl;
+      }
+    }
     std::string arg2_str = get_arg_str(expr->arg(2));
+    
     if (qemu_device_)
       arg2_str =
           (arg2_str == "true") ? "1" : (arg2_str == "false") ? "0" : arg2_str;
@@ -361,7 +386,7 @@ void IlaSim::dfs_binary_op_mem(std::stringstream& dfs_simulator,
                      ? "1"
                      : (arg2_str == "false") ? "0" : arg2_str + ".to_int()";
     if (qemu_device_)
-      dfs_simulator << indent << "mem_update_map[" << arg1_str
+      dfs_simulator << indent << out_str << ".update_map[" << arg1_str
                     << "] = " << arg2_str << ";" << std::endl;
     else
       dfs_simulator << indent << "mem_update_map[" << arg1_str

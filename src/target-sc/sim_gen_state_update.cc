@@ -31,7 +31,7 @@ void IlaSim::create_state_update(const InstrPtr& instr_expr) {
           updated_state->name().str();
     */
     ILA_CHECK(!load_from_store_analysis(update_expr))
-        << "Load-after-store is not supported in sc-target generation";
+       << "Load-after-store is not supported in sc-target generation";
     bool state_not_updated = updated_state->name().id() == update_expr_id;
     if (state_not_updated)
       continue;
@@ -226,6 +226,15 @@ void IlaSim::state_update_return(std::stringstream& state_update_function,
     state_update_function << indent << updated_state->host()->name().str() 
                           << "_" << updated_state->name().str() << "_next = "
                           << return_str << ";" << std::endl;
+  } else {
+    state_update_function << indent << updated_state->host()->name().str()
+                          << "_" << updated_state->name().str() 
+                          << "_next.original_map = " << return_str 
+                          << ".original_map;" << std::endl;
+    state_update_function << indent << updated_state->host()->name().str()
+                          << "_" << updated_state->name().str() 
+                          << "_next.update_map = " << return_str 
+                          << ".update_map;" << std::endl;
   }
   return;
 }

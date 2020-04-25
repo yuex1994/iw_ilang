@@ -161,17 +161,18 @@ void IlaSim::execute_update_state(std::stringstream& execute_kernel,
         "decode_" + std::to_string(instr_expr->decode()->name().id());
   std::string state_update_func_name =
       decode_func_name + "_update_" + updated_state_name;
-  std::string mem_update_map = state_update_func_name + "_map";
+  std::string mem_update_map = updated_state_name + "_next";
 
   if (updated_state->is_mem()) {
     if (EXTERNAL_MEM_)
       return;
     auto mem_addr_width = updated_state->sort()->addr_width();
     auto mem_data_width = updated_state->sort()->data_width();
-    if (qemu_device_)
+    if (qemu_device_) 
       execute_kernel << indent << "for (std::map<uint" << mem_addr_width << "_t, uint"
-                     << mem_data_width << "_t>::iterator it = " << mem_update_map << ".begin(); it != "<< mem_update_map
-                     << ".end(); it++) {" << std::endl; 
+                     << mem_data_width << "_t>::iterator it = " << mem_update_map 
+                     << ".update_map.begin(); it != "<< mem_update_map
+                     << ".update_map.end(); it++) {" << std::endl; 
     else
       execute_kernel << indent << "for (std::map<int, int>::iterator it = "
                      << mem_update_map << ".begin(); it != " << mem_update_map

@@ -20,6 +20,15 @@ void IlaSim::create_mem_state(const ExprPtr& expr) {
       if (qemu_device_) {
         header_ << header_indent_ << "uint" << mem_data_width << "_t "
                 << state_name_str << "[" << array_size << "];" << std::endl;
+        header_ << header_indent_ << "typedef struct {" << std::endl
+                << header_indent_ << "  std::map<uint" << mem_addr_width 
+                << "_t, uint" << mem_data_width << "_t> " << "update_map;"
+                << std::endl << header_indent_ << "  uint" << mem_data_width
+                << "_t* original_map;" << std::endl << header_indent_ 
+                << "} " << state_name_str << "_type;" << std::endl; 
+        header_ << header_indent_ << state_name_str << "_type "
+                << state_name_str << "_next;" << std::endl;
+        mem_var_type[state_name_str] = state_name_str + "_type";
       } else {
         header_ << header_indent_ << "sc_biguint<" << mem_data_width << "> "
                 << state_name_str << "[" << array_size << "];" << std::endl;

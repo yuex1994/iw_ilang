@@ -242,10 +242,17 @@ void IlaSim::sim_gen_export() {
     //            << "-o "
     //            << "test_tb test_tb.o " << obj_list_.rdbuf() << "-lsystemc"
     //            << endl;
+  } else {
+    cmake_script_ << "AUX_SOURCE_DIRECTORY(./ SRC_FILES)" << std::endl;
+    cmake_script_ << "set(CMAKE_CXX_FLAGS -O3)" << std::endl;
+    cmake_script_ << "add_library(src ${SIM_FILES})" << std::endl;
   }
   outFile.open(export_dir_ + "mk.sh");
   outFile << mk_script_.rdbuf();
   outFile.close();
+  outFile.open(export_dir_ + "CMakeLists.txt");
+  outFile << cmake_script_.rdbuf();
+  outFile.close(); 
 }
 
 }; // namespace ilang

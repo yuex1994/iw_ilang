@@ -197,6 +197,7 @@ private:
   std::stringstream header_;
   std::stringstream mk_script_;
   std::stringstream obj_list_;
+  std::stringstream cmake_script_;
   std::string header_indent_;
 
   std::set<size_t> searched_id_set_;
@@ -213,6 +214,7 @@ private:
   bool EXTERNAL_MEM_ = false;
   const int MEM_MAP_ARRAY_DIV = 16;
   std::set<int> int_var_width_set_;
+  std::map<std::string, std::string> mem_var_type;
 
   // Readable_ is used to control whether the generated function name is
   // huname-readable. When being set true, function will be named based on the
