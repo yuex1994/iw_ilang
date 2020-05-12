@@ -94,7 +94,11 @@ void IlaSim::dfs_uninterpreted_func_decl(const FuncPtr& func) {
                 << "arg_" << i;
     }
   }
-  header_ << ");" << std::endl;
+  header_ << ")";
+  if (zero_unintepreted_func_)
+    header_ << " {return 0;}" << std::endl;
+  else
+    header_ << ";" << std::endl;
 }
 
 void IlaSim::dfs_const_node(std::stringstream& dfs_simulator,

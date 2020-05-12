@@ -34,9 +34,11 @@ void IlaSim::execute_parent_instructions(std::stringstream& execute_kernel,
 void IlaSim::execute_child_instructions(std::stringstream& execute_kernel,
                                         std::string& indent) {
   std::queue<InstrLvlAbsPtr> child_ila_queue;
+#ifdef CHILD_LOOP
   execute_kernel << indent << "while (1) {" << std::endl;
   increase_indent(indent);
   execute_kernel << indent << "int schedule_counter = 0;" << std::endl;
+#endif
   for (unsigned int i = 0; i < model_ptr_->child_num(); i++)
     child_ila_queue.push(model_ptr_->child(i));
   while (!child_ila_queue.empty()) {
@@ -47,10 +49,12 @@ void IlaSim::execute_child_instructions(std::stringstream& execute_kernel,
     for (unsigned int i = 0; i < child_ila->instr_num(); i++)
       execute_instruction(execute_kernel, indent, child_ila->instr(i), true);
   }
+#ifdef CHILD_LOOP
   execute_kernel << indent << "if (schedule_counter == 0) " << std::endl;
   execute_kernel << indent << "  break;" << std::endl;
   decrease_indent(indent);
   execute_kernel << indent << "}" << std::endl;
+#endif
 }
 
 void IlaSim::execute_instruction(std::stringstream& execute_kernel,
@@ -81,10 +85,21 @@ void IlaSim::execute_instruction(std::stringstream& execute_kernel,
       continue;
     execute_update_state(execute_kernel, indent, instr_expr, updated_state);
   }
+#ifdef CHILD_LOOP
   if (child)
     execute_kernel << indent << "schedule_counter++;" << std::endl;
+#endif
   if (EXTERNAL_MEM_)
     execute_external_mem_load_end(execute_kernel, indent);
+  auto prog_ptr = instr_expr->program();
+  if (prog_ptr) {
+    if (prog_ptr->init_num() > 0) {
+      auto init_ptr = prog_ptr->init(0); 
+      execute_kernel << indent << "init_" << prog_ptr->name() << "();"
+                     << std::endl;
+
+    } 
+  }
   decrease_indent(indent);
   execute_kernel << indent << "}" << std::endl;
 }

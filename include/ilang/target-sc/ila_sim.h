@@ -14,6 +14,8 @@
 
 #define EXTERNAL_MEM 0
 
+// #define CHILD_LOOP
+
 namespace ilang {
 
 // TODO(yuex): change id to instruction name for decode&state_update function
@@ -49,12 +51,13 @@ public:
   void set_systemc_path(std::string systemc_path);
   /// TODO
   void sim_gen(std::string export_dir, bool external_mem = false,
-               bool readable = false, bool qemu_device = false);
+               bool readable = false, bool qemu_device = false, 
+               bool zero_unintepreted_func = true);
 
 private:
   // Initialize all member variables for a new simulator generation pass.
   void sim_gen_init(std::string export_dir, bool external_mem, bool readable,
-                    bool qemu_device);
+                    bool qemu_device, bool zero_unintepreted_func);
   // Create initial lines for the simulator's header file
   void sim_gen_init_header();
   void sim_gen_input();
@@ -222,6 +225,7 @@ private:
   // same-name bug if setting true.
   bool readable_ = true;
   bool qemu_device_ = false;
+  bool zero_unintepreted_func_ = true;
 
   InstrLvlAbsPtr model_ptr_;
 };

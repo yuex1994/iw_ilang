@@ -19,8 +19,8 @@ void IlaSim::set_systemc_path(std::string systemc_path) {
 }
 
 void IlaSim::sim_gen(std::string export_dir, bool external_mem, bool readable,
-                     bool qemu_device) {
-  sim_gen_init(export_dir, external_mem, readable, qemu_device);
+                     bool qemu_device, bool zero_unintepreted_func) {
+  sim_gen_init(export_dir, external_mem, readable, qemu_device, zero_unintepreted_func);
   sim_gen_init_header();
   sim_gen_input();
   sim_gen_state();
@@ -33,7 +33,8 @@ void IlaSim::sim_gen(std::string export_dir, bool external_mem, bool readable,
 }
 
 void IlaSim::sim_gen_init(std::string export_dir, bool external_mem,
-                          bool readable, bool qemu_device) {
+                          bool readable, bool qemu_device, 
+                          bool zero_unintepreted_func) {
   header_.str("");
   mk_script_.str("");
   obj_list_.str("");
@@ -53,6 +54,7 @@ void IlaSim::sim_gen_init(std::string export_dir, bool external_mem,
   export_dir_ = export_dir;
   readable_ = readable;
   qemu_device_ = qemu_device;
+  zero_unintepreted_func_ = zero_unintepreted_func;
 }
 
 void IlaSim::sim_gen_init_header() {
@@ -181,7 +183,9 @@ void IlaSim::sim_gen_execute_kernel() {
   if (EXTERNAL_MEM_)
     execute_external_mem_after_output(execute_kernel, indent);
   execute_parent_instructions(execute_kernel, indent);
+#ifdef CHILD_LOOP
   execute_init(execute_kernel, indent);
+#endif
   execute_child_instructions(execute_kernel, indent);
   if (EXTERNAL_MEM_)
     execute_external_mem_return(execute_kernel, indent);
@@ -243,7 +247,7 @@ void IlaSim::sim_gen_export() {
     //            << "test_tb test_tb.o " << obj_list_.rdbuf() << "-lsystemc"
     //            << endl;
   } else {
-    cmake_script_ << "AUX_SOURCE_DIRECTORY(./ SRC_FILES)" << std::endl;
+    cmake_script_ << "AUX_SOURCE_DIRECTORY(./ SIM_FILES)" << std::endl;
     cmake_script_ << "set(CMAKE_CXX_FLAGS -O3)" << std::endl;
     cmake_script_ << "add_library(src ${SIM_FILES})" << std::endl;
   }
