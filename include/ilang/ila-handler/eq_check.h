@@ -23,6 +23,8 @@ bool CheckEqSameArch(const Ila& a, const Ila& b, bool update = true);
 /// \param[in] update check update if true.
 bool CheckEqSameMicroArch(const Ila& a, const Ila& b, bool update = true);
 
+int StateNumber(const Ila& a);
+
 }; // namespace ilang
 
 #endif // ILANG_ILA_HANDLER_EQ_CHECK_H__

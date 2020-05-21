@@ -7,8 +7,22 @@
 #include <ilang/ila/instr_lvl_abs.h>
 #include <ilang/util/log.h>
 #include <ilang/verification/eq_check_crr.h>
+#include <ilang/ila/ast_fuse.h>
 
 namespace ilang {
+
+int StateNumber(const Ila& a) {
+  int r = 0;
+  auto ma = a.get();
+  for (int i = 0; i < ma->state_num(); i++) {
+    auto s = ma->state(i);
+    if (GetUidSort(s->sort()) == AST_UID_SORT::BOOL)
+      r += 1;
+    else if (GetUidSort(s->sort()) == AST_UID_SORT::BV)
+      r+= s->sort()->bit_width();
+  }
+  return r;
+}
 
 bool CheckEqSameMicroArch(const Ila& a, const Ila& b, bool update) {
   auto ma = a.get();
