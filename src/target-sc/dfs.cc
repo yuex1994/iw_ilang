@@ -563,11 +563,38 @@ void IlaSim::dfs_ite_op(std::stringstream& dfs_simulator, std::string& indent,
     dfs_simulator << indent << out_str << " = (" << cond_str << ") ? "
                   << true_str << " : " << false_str << ";" << std::endl;
   } else {
-    if (store_ite_set_.find(id) == store_ite_set_.end()) {
-      store_ite_set_.insert(id);
-      searched_id_set_.insert(id);
-      dfs_simulator << indent << "ite_" << id << "(mem_update_map);"
-                    << std::endl;
+    out_type_str = mem_var_type[true_str]; 
+    mem_var_type[out_str] = out_type_str;
+    dfs_simulator << indent << out_type_str << " " << out_str 
+                  << ";" << std::endl;
+    auto arg0_uid = GetUidExpr(expr->arg(1));
+    auto arg1_uid = GetUidExpr(expr->arg(2));
+    if ((arg0_uid == AST_UID_EXPR::VAR) && (arg1_uid == AST_UID_EXPR::VAR)) {
+      dfs_simulator << indent << out_str << ".original_map = ("
+                    << cond_str << ") ? " << true_str << " : " << false_str
+                    << ";" << std::endl; 
+    } else if ((arg0_uid == AST_UID_EXPR::VAR) && (arg1_uid == AST_UID_EXPR::OP)) {
+      dfs_simulator << indent << out_str << ".original_map = (" << cond_str << ") ? "
+                    << true_str << " : " << false_str << ".original_map;" << std::endl; 
+      dfs_simulator << indent << "if (!" << cond_str << ") " << out_str << ".update_map = "
+                    << false_str << ".update_map;" << std::endl; 
+    } else if ((arg0_uid == AST_UID_EXPR::OP) && (arg1_uid == AST_UID_EXPR::VAR)) {
+      dfs_simulator << indent << out_str << ".original_map = (" << cond_str << ") ? "
+                    << true_str << ".original_map : " << false_str << ";" << std::endl; 
+      dfs_simulator << indent << "if (" << cond_str << ") " << out_str << ".update_map = "
+                    << true_str << ".update_map;" << std::endl; 
+    } else {
+      dfs_simulator << indent << out_str << ".original_map = (" << cond_str << ") ? "
+                    << true_str << ".original_map : " << false_str << ".original_map;"
+                    << std::endl; 
+      dfs_simulator << indent << "if (" << cond_str << ") " << out_str << ".update_map = "
+                    << true_str << ".update_map : " << false_str << ".update_map;" 
+                    << std::endl; 
+//    if (store_ite_set_.find(id) == store_ite_set_.end()) {
+//      store_ite_set_.insert(id);
+//      searched_id_set_.insert(id);
+//      dfs_simulator << indent << "ite_" << id << "(mem_update_map);"
+//                    << std::endl;
     }
   }
 }
