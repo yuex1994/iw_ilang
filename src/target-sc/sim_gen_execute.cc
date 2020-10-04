@@ -94,11 +94,18 @@ void IlaSim::execute_instruction(std::stringstream& execute_kernel,
   auto prog_ptr = instr_expr->program();
   if (prog_ptr) {
     if (prog_ptr->init_num() > 0) {
-      auto init_ptr = prog_ptr->init(0); 
+      auto init_ptr = prog_ptr->init(0);
       execute_kernel << indent << "init_" << prog_ptr->name() << "();"
                      << std::endl;
-
-    } 
+    }
+  }
+  if (tandem_verification_ && !child) {
+    // execute_kernel << indent << model_ptr_->name().str() << "_pc += 1;" <<
+    // std::endl;
+    execute_kernel << indent << "#ifdef " << kTandemMacro << std::endl;
+    execute_kernel << indent << "tandem_f_ptr = " << instr_expr->name().str()
+                   << ";" << std::endl;
+    execute_kernel << indent << "#endif" << std::endl;
   }
   decrease_indent(indent);
   execute_kernel << indent << "}" << std::endl;
@@ -148,17 +155,17 @@ void IlaSim::execute_state_update_func(std::stringstream& execute_kernel,
   else
     decode_func_name =
         "decode_" + std::to_string(instr_expr->decode()->name().id());
-  std::string state_update_func_name =
-      decode_func_name + "_update";
+  std::string state_update_func_name = decode_func_name + "_update";
   // std::string mem_update_map = state_update_func_name + "_map";
-//  if (updated_state->is_mem())
-//    execute_kernel << indent << state_update_func_name << "(" << mem_update_map
-//                   << ");" << std::endl;
-//  else
-//    execute_kernel << indent << updated_state_type << updated_state_name
-//                   << "_next = " << state_update_func_name << "();"
-//                   << std::endl;
-    execute_kernel << indent << state_update_func_name << "();" << std::endl;
+  //  if (updated_state->is_mem())
+  //    execute_kernel << indent << state_update_func_name << "(" <<
+  //    mem_update_map
+  //                   << ");" << std::endl;
+  //  else
+  //    execute_kernel << indent << updated_state_type << updated_state_name
+  //                   << "_next = " << state_update_func_name << "();"
+  //                   << std::endl;
+  execute_kernel << indent << state_update_func_name << "();" << std::endl;
 }
 
 void IlaSim::execute_update_state(std::stringstream& execute_kernel,
@@ -183,17 +190,19 @@ void IlaSim::execute_update_state(std::stringstream& execute_kernel,
       return;
     auto mem_addr_width = updated_state->sort()->addr_width();
     auto mem_data_width = updated_state->sort()->data_width();
-    if (qemu_device_) 
-      execute_kernel << indent << "for (std::map<uint" << mem_addr_width << "_t, uint"
-                     << mem_data_width << "_t>::iterator it = " << mem_update_map 
-                     << ".update_map.begin(); it != "<< mem_update_map
-                     << ".update_map.end(); it++) {" << std::endl; 
+    if (qemu_device_)
+      execute_kernel << indent << "for (std::map<uint" << mem_addr_width
+                     << "_t, uint" << mem_data_width
+                     << "_t>::iterator it = " << mem_update_map
+                     << ".update_map.begin(); it != " << mem_update_map
+                     << ".update_map.end(); it++) {" << std::endl;
     else
       execute_kernel << indent << "for (std::map<int, int>::iterator it = "
                      << mem_update_map << ".begin(); it != " << mem_update_map
                      << ".end(); it++) {" << std::endl;
     increase_indent(indent);
-    execute_kernel << indent << updated_state_name << "[static_cast<uint32_t> (it->first)] = "
+    execute_kernel << indent << updated_state_name
+                   << "[static_cast<uint32_t> (it->first)] = "
                    << "it->second;" << std::endl;
     decrease_indent(indent);
     execute_kernel << indent << "}" << std::endl;
@@ -405,7 +414,31 @@ void IlaSim::execute_kernel_mk_file() {
 }
 
 void IlaSim::execute_kernel_header() {
-  header_ << header_indent_ << "void compute();" << std::endl;
+  if (tandem_verification_) {
+    header_ << header_indent_ << "#ifdef " << kTandemMacro << std::endl;
+    header_ << header_indent_ << "void compute(" << kRTLSimType << "* v);"
+            << std::endl;
+    header_ << header_indent_ << "#else" << std::endl;
+    header_ << header_indent_ << "void compute();" << std::endl;
+    header_ << header_indent_ << "#endif" << std::endl;
+  } else {
+    header_ << header_indent_ << "void compute();" << std::endl;
+  }
+}
+
+void IlaSim::execute_tandem(std::stringstream& execute_kernel,
+                            std::string& indent) {
+  execute_kernel << indent << " #ifdef " << kTandemMacro << std::endl;
+  execute_kernel << indent << "if ((tandem_f_ptr >= 0) && (tandem_f_ptr < "
+                 << model_ptr_->instr_num() << ")) {" << std::endl;
+  execute_kernel << indent << "  (this->*(tandem_f[tandem_f_ptr]))(v);"
+                 << std::endl;
+  execute_kernel << indent << "}" << std::endl;
+  execute_kernel << indent << "else {" << std::endl;
+  execute_kernel << "  throw " << model_ptr_->name().str()
+                 << "Exception(\"Ran unspecified function!\");" << std::endl;
+  execute_kernel << indent << "}" << std::endl;
+  execute_kernel << indent << "#endif" << std::endl;
 }
 
 }; // namespace ilang

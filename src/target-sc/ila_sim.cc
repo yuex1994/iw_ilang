@@ -2,6 +2,7 @@
 
 #include <queue>
 
+#include <ilang/ila/ast_fuse.h>
 #include <ilang/util/log.h>
 
 namespace ilang {
@@ -19,13 +20,17 @@ void IlaSim::set_systemc_path(std::string systemc_path) {
 }
 
 void IlaSim::sim_gen(std::string export_dir, bool external_mem, bool readable,
-                     bool qemu_device, bool zero_unintepreted_func) {
-  sim_gen_init(export_dir, external_mem, readable, qemu_device, zero_unintepreted_func);
+                     bool qemu_device, bool zero_unintepreted_func,
+                     bool tandem_verification, std::string tandem_ref_map) {
+  sim_gen_init(export_dir, external_mem, readable, qemu_device,
+               zero_unintepreted_func, tandem_verification, tandem_ref_map);
   sim_gen_init_header();
   sim_gen_input();
   sim_gen_state();
   sim_gen_init();
   sim_gen_decode();
+  if (tandem_verification_)
+    sim_gen_tandem();
   sim_gen_state_update();
   sim_gen_execute_kernel();
   sim_gen_execute_invoke();
@@ -33,8 +38,9 @@ void IlaSim::sim_gen(std::string export_dir, bool external_mem, bool readable,
 }
 
 void IlaSim::sim_gen_init(std::string export_dir, bool external_mem,
-                          bool readable, bool qemu_device, 
-                          bool zero_unintepreted_func) {
+                          bool readable, bool qemu_device,
+                          bool zero_unintepreted_func, bool tandem_verification,
+                          std::string tandem_ref_map) {
   header_.str("");
   mk_script_.str("");
   obj_list_.str("");
@@ -55,6 +61,35 @@ void IlaSim::sim_gen_init(std::string export_dir, bool external_mem,
   readable_ = readable;
   qemu_device_ = qemu_device;
   zero_unintepreted_func_ = zero_unintepreted_func;
+  tandem_verification_ = tandem_verification;
+  tandem_ref_map_ = tandem_ref_map;
+}
+
+void IlaSim::sim_gen_tandem() {
+  header_ << header_indent_ << "#ifdef " << kTandemMacro << std::endl;
+  header_ << header_indent_ << "int tandem_f_ptr;" << std::endl;
+  header_ << header_indent_ << model_ptr_->name().str() << "();" << std::endl;
+  for (uint i = 0; i < model_ptr_->state_num(); i++) {
+    if (GetUidSort(model_ptr_->state(i)->sort()) != AST_UID_SORT::MEM) {
+      header_ << header_indent_ << "void check_"
+              << model_ptr_->state(i)->name().str() << "(" << kRTLSimType
+              << "* v);" << std::endl;
+    }
+  }
+  for (uint i = 0; i < model_ptr_->instr_num(); i++) {
+    header_ << header_indent_ << "void tandem_instr_"
+            << model_ptr_->instr(i)->name().str() << "(" << kRTLSimType
+            << "* v);" << std::endl;
+  }
+  header_ << header_indent_ << "typedef void (" << model_ptr_->name().str()
+          << "::*tandem_f_type)(" << kRTLSimType << "*);" << std::endl;
+  header_ << header_indent_ << "tandem_f_type tandem_f["
+          << model_ptr_->instr_num() + 1 << "];" << std::endl;
+  header_ << header_indent_ << "#endif" << std::endl;
+  
+  create_tandem_check();
+  create_tandem_constructor();
+  
 }
 
 void IlaSim::sim_gen_init_header() {
@@ -67,6 +102,18 @@ void IlaSim::sim_gen_init_header() {
   } else {
     header_ << header_indent_ << "#include <boost/multiprecision/cpp_int.hpp>"
             << std::endl;
+    if (tandem_verification_) {
+      header_ << "#define " << kTandemMacro << std::endl;
+      header_ << "#ifdef " << kTandemMacro << std::endl;
+      header_ << "#include \"" << model_ptr_->name().str() << "_rtl.h\""
+              << std::endl;
+      header_ << header_indent_ << get_exception_def(header_indent_);
+      for (uint i = 0; i < model_ptr_->instr_num(); i++) {
+        header_ << header_indent_ << "#define " << model_ptr_->instr(i)->name().str() << " "
+                << std::to_string(i) << std::endl;
+      }
+      header_ << header_indent_ << "#endif" << std::endl;
+    }
     header_ << header_indent_ << "using namespace boost::multiprecision;"
             << std::endl;
     int_var_width_scan();
@@ -170,8 +217,20 @@ void IlaSim::sim_gen_execute_kernel() {
     execute_kernel << indent << "#include \"systemc.h\"" << std::endl;
   execute_kernel << indent << "#include \"" << model_ptr_->name() << ".h\""
                  << std::endl;
-  execute_kernel << indent << "void " << model_ptr_->name() << "::compute() {"
-                 << std::endl;
+  if (tandem_verification_) {
+    execute_kernel << indent << "#ifdef " << kTandemMacro << std::endl;
+    execute_kernel << indent << "void " << model_ptr_->name() << "::compute(" << kRTLSimType << "* v) {"
+                   << std::endl;    
+    increase_indent(indent);
+    execute_kernel << indent << "tandem_f_ptr = -1;" << std::endl;
+    decrease_indent(indent); 
+    execute_kernel << indent << "#else" << std::endl;
+    execute_kernel << indent << "void " << model_ptr_->name() << "::compute() {"
+                   << std::endl;
+    execute_kernel << indent << "#endif" << std::endl;
+  } else 
+    execute_kernel << indent << "void " << model_ptr_->name() << "::compute() {"
+      << std::endl;
   increase_indent(indent);
   if (EXTERNAL_MEM_) {
     execute_write_external_mem(execute_kernel, indent);
@@ -192,6 +251,7 @@ void IlaSim::sim_gen_execute_kernel() {
   if (!qemu_device_)
     execute_write_output(execute_kernel, indent);
   decrease_indent(indent);
+  execute_tandem(execute_kernel, indent);
   execute_kernel << indent << "};" << std::endl;
   execute_kernel_export(execute_kernel);
   execute_kernel_mk_file();
@@ -256,7 +316,7 @@ void IlaSim::sim_gen_export() {
   outFile.close();
   outFile.open(export_dir_ + "CMakeLists.txt");
   outFile << cmake_script_.rdbuf();
-  outFile.close(); 
+  outFile.close();
 }
 
 }; // namespace ilang

@@ -80,4 +80,26 @@ void IlaSim::int_var_width_scan() {
   }
 }
 
+std::string IlaSim::get_exception_def(std::string& indent) {
+  std::string e;
+  e_class_name_ = model_ptr_->name().str() + "Exception";
+  e.append(indent + "class " + e_class_name_ + " : public std::exception\n");
+  e.append(indent + "{\n");
+  increase_indent(indent);
+  e.append(indent + "std::string _msg;\n");
+  decrease_indent(indent);
+  e.append(indent + "public:\n");
+  increase_indent(indent);
+  e.append(indent + e_class_name_ + "(const std::string& msg) : _msg(msg){}\n");
+  e.append(indent + "virtual const char* what() const noexcept override\n");
+  e.append(indent + "{\n");
+  increase_indent(indent);
+  e.append(indent + "return _msg.c_str();\n");
+  decrease_indent(indent);
+  e.append(indent + "}\n");
+  decrease_indent(indent);
+  e.append(indent + "};\n");
+  return e;
+}
+
 }; // namespace ilang

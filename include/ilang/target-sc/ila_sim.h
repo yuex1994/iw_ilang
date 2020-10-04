@@ -11,10 +11,11 @@
 #include <vector>
 
 #include <ilang/ila/instr_lvl_abs.h>
+#include <nlohmann/json.hpp>
 
 #define EXTERNAL_MEM 0
 
-// #define CHILD_LOOP
+#define CHILD_LOOP
 
 namespace ilang {
 
@@ -51,19 +52,23 @@ public:
   void set_systemc_path(std::string systemc_path);
   /// TODO
   void sim_gen(std::string export_dir, bool external_mem = false,
-               bool readable = false, bool qemu_device = false, 
-               bool zero_unintepreted_func = true);
+               bool readable = false, bool qemu_device = false,
+               bool zero_unintepreted_func = true,
+               bool tandem_verification = false,
+               std::string tandem_ref_map = "");
 
 private:
   // Initialize all member variables for a new simulator generation pass.
   void sim_gen_init(std::string export_dir, bool external_mem, bool readable,
-                    bool qemu_device, bool zero_unintepreted_func);
+                    bool qemu_device, bool zero_unintepreted_func,
+                    bool tandem_verification, std::string tandem_ref_map);
   // Create initial lines for the simulator's header file
   void sim_gen_init_header();
   void sim_gen_input();
   void sim_gen_state();
   void sim_gen_init();
   void sim_gen_decode();
+  void sim_gen_tandem();
   void sim_gen_state_update();
   void sim_gen_execute_kernel();
   void sim_gen_execute_invoke();
@@ -104,7 +109,7 @@ private:
 
   void create_state_update(const InstrPtr& instr_expr);
   void state_update_decl(std::stringstream& state_update_function,
-                         std::string& indent, 
+                         std::string& indent,
                          std::string& state_update_func_name);
   void state_update_return(std::stringstream& state_update_function,
                            std::string& indent, const ExprPtr& updated_state,
@@ -127,8 +132,7 @@ private:
                       const InstrPtr& instr_expr);
   void execute_state_update_func(std::stringstream& execute_kernel,
                                  std::string& indent,
-                                 const InstrPtr& instr_expr
-                                 );
+                                 const InstrPtr& instr_expr);
   void execute_update_state(std::stringstream& execute_kernel,
                             std::string& indent, const InstrPtr& instr_expr,
                             const ExprPtr& updated_state);
@@ -154,6 +158,10 @@ private:
   void execute_kernel_export(std::stringstream& execute_kernel);
   void execute_kernel_mk_file();
   void execute_kernel_header();
+
+  void create_tandem_check();
+  void create_tandem_constructor();
+  void execute_tandem(std::stringstream& execute_kernel, std::string& indent);
 
   void dfs_store_op(const ExprPtr& expr);
   void dfs_load_from_store(const ExprPtr& expr);
@@ -186,12 +194,14 @@ private:
                   const ExprPtr& expr);
 
   std::string get_arg_str(const ExprPtr& arg);
+  std::string get_exception_def(std::string& indent);
   void increase_indent(std::string& indent);
   void decrease_indent(std::string& indent);
   int get_update_state_num(const InstrPtr& instr_expr);
   bool load_from_store_analysis(const ExprPtr& expr);
   void declare_variable_with_id(size_t id, std::string v_type,
                                 std::string v_name);
+  nlohmann::json load_json(std::string file_name);
   void int_var_width_scan();
 
   std::string export_dir_;
@@ -226,7 +236,12 @@ private:
   bool readable_ = true;
   bool qemu_device_ = false;
   bool zero_unintepreted_func_ = true;
+  bool tandem_verification_ = false;
+  std::string tandem_ref_map_;
+  std::string e_class_name_;
 
+  const std::string kTandemMacro = "TANDEM_VERIFICATION";
+  const std::string kRTLSimType = "RTLVerilated";
   InstrLvlAbsPtr model_ptr_;
 };
 
