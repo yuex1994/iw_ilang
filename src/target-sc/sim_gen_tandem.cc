@@ -17,17 +17,19 @@ void IlaSim::create_tandem_check() {
 
   auto ref_var_map = load_json(tandem_ref_map_);
   auto state_map = ref_var_map["state mapping"];
+  // std::set<ExprPtr> checked_states;
   for (uint i = 0; i < model_ptr_->state_num(); i++) {
     if (GetUidSort(model_ptr_->state(i)->sort()) == AST_UID_SORT::MEM)
       continue;
     auto state = model_ptr_->state(i);
     auto state_name = state->name().str();
     try {
+      auto v_name = state_map.at(state_name);      
+      // checked_states.insert(state);
       tandem_check << indent << "void " << model_ptr_->name().str()
                    << "::check_" << state_name << "(" << kRTLSimType << "* v) {"
                    << std::endl;
       increase_indent(indent);
-      auto v_name = state_map.at(state_name);
       if ((GetUidSort(state->sort()) == AST_UID_SORT::BOOL)) {
         tandem_check << indent << "if (" << model_ptr_->name().str() << "_"
                      << state_name << " != "
@@ -48,7 +50,7 @@ void IlaSim::create_tandem_check() {
                      << "throw " << model_ptr_->name().str() << "Exception(\""
                      << state_name << " unequal.\");" << std::endl;
       } else {
-        for (int j = 0; j < state->sort()->bit_width() / 32; j++) {
+        for (int j = 0; j < state->sort()->bit_width() / 32 + ((state->sort()->bit_width() % 32 == 0)? 0:1); j++) {
           tandem_check << indent << "if ((" << model_ptr_->name().str() << "_"
                        << state_name << " >> " << 32 * j
                        << ") % (1ll << 32) != "
@@ -60,11 +62,17 @@ void IlaSim::create_tandem_check() {
                        << state_name << " unequal.\");" << std::endl;
         }
       }
-    } catch (std::out_of_range& e)
+      decrease_indent(indent);
+    } catch (nlohmann::detail::out_of_range& e)
     {
       std::cout << "out of range: " << e.what() << '\n';
+      if (GetUidSort(state->sort()) != AST_UID_SORT::MEM) {
+        tandem_check << indent << "void " << model_ptr_->name().str()
+                   << "::check_" << state_name << "(" << kRTLSimType << "* v) {}"
+                   << std::endl;        
+      }
+      continue;
     }
-    decrease_indent(indent);
     tandem_check << indent << "}" << std::endl;
   }
 
@@ -78,6 +86,8 @@ void IlaSim::create_tandem_check() {
       auto updated_state = model_ptr_->state(updated_state_name);
       if (GetUidSort(update_expr->sort()) == AST_UID_SORT::MEM)
         continue;
+      // if (checked_states.find(updated_state) == checked_states.end())
+      //  continue;
       tandem_check << indent << "check_" << updated_state_name << "(v);" << std::endl;
     }
     decrease_indent(indent);
