@@ -21,7 +21,7 @@ void IlaSim::set_systemc_path(std::string systemc_path) {
 
 void IlaSim::sim_gen(std::string export_dir, bool external_mem, bool readable,
                      bool qemu_device, bool zero_unintepreted_func,
-                     bool tandem_scenario, std::string tandem_ref_map) {
+                     int tandem_scenario, std::string tandem_ref_map) {
   sim_gen_init(export_dir, external_mem, readable, qemu_device,
                zero_unintepreted_func, tandem_scenario, tandem_ref_map);
   sim_gen_init_header();
