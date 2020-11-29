@@ -100,12 +100,10 @@ void IlaSim::execute_instruction(std::stringstream& execute_kernel,
     }
   }
   if (tandem_verification_ && !child) {
-    // execute_kernel << indent << model_ptr_->name().str() << "_pc += 1;" <<
-    // std::endl;
-    execute_kernel << indent << "#ifdef " << kTandemMacro << std::endl;
+    if (aux_pc_enable_)
+      execute_kernel << indent << model_ptr_->name().str() << "_pc++;" << std::endl;
     execute_kernel << indent << "tandem_f_ptr = " << instr_expr->name().str()
                    << ";" << std::endl;
-    execute_kernel << indent << "#endif" << std::endl;
   }
   decrease_indent(indent);
   execute_kernel << indent << "}" << std::endl;
@@ -415,12 +413,8 @@ void IlaSim::execute_kernel_mk_file() {
 
 void IlaSim::execute_kernel_header() {
   if (tandem_verification_) {
-    header_ << header_indent_ << "#ifdef " << kTandemMacro << std::endl;
     header_ << header_indent_ << "void compute(" << kRTLSimType << "* v);"
             << std::endl;
-    header_ << header_indent_ << "#else" << std::endl;
-    header_ << header_indent_ << "void compute();" << std::endl;
-    header_ << header_indent_ << "#endif" << std::endl;
   } else {
     header_ << header_indent_ << "void compute();" << std::endl;
   }
@@ -428,17 +422,15 @@ void IlaSim::execute_kernel_header() {
 
 void IlaSim::execute_tandem(std::stringstream& execute_kernel,
                             std::string& indent) {
-  execute_kernel << indent << " #ifdef " << kTandemMacro << std::endl;
-  execute_kernel << indent << "if ((tandem_f_ptr >= 0) && (tandem_f_ptr < "
-                 << model_ptr_->instr_num() << ")) {" << std::endl;
-  execute_kernel << indent << "  (this->*(tandem_f[tandem_f_ptr]))(v);"
-                 << std::endl;
-  execute_kernel << indent << "}" << std::endl;
-  execute_kernel << indent << "else {" << std::endl;
-  execute_kernel << "  throw " << model_ptr_->name().str()
-                 << "Exception(\"Ran unspecified function!\");" << std::endl;
-  execute_kernel << indent << "}" << std::endl;
-  execute_kernel << indent << "#endif" << std::endl;
+    execute_kernel << indent << "if ((tandem_f_ptr >= 0) && (tandem_f_ptr < "
+                   << model_ptr_->instr_num() << ")) {" << std::endl;
+    execute_kernel << indent << "  (this->*(tandem_f[tandem_f_ptr]))(v);"
+                   << std::endl;
+    execute_kernel << indent << "}" << std::endl;
+    execute_kernel << indent << "else {" << std::endl;
+   execute_kernel << "  throw " << model_ptr_->name().str()
+                   << "Exception(\"Ran unspecified function!\");" << std::endl;
+    execute_kernel << indent << "}" << std::endl;
 }
 
 }; // namespace ilang

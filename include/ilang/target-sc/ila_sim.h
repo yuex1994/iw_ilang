@@ -54,14 +54,14 @@ public:
   void sim_gen(std::string export_dir, bool external_mem = false,
                bool readable = false, bool qemu_device = false,
                bool zero_unintepreted_func = true,
-               bool tandem_verification = false,
+               int tandem_scenario = -1,
                std::string tandem_ref_map = "");
 
 private:
   // Initialize all member variables for a new simulator generation pass.
   void sim_gen_init(std::string export_dir, bool external_mem, bool readable,
                     bool qemu_device, bool zero_unintepreted_func,
-                    bool tandem_verification, std::string tandem_ref_map);
+                    int tandem_scenario, std::string tandem_ref_map);
   // Create initial lines for the simulator's header file
   void sim_gen_init_header();
   void sim_gen_input();
@@ -69,6 +69,17 @@ private:
   void sim_gen_init();
   void sim_gen_decode();
   void sim_gen_tandem();
+  void sim_gen_tandem_s1();
+  void sim_gen_tandem_s2();
+  void sim_gen_tandem_s3();
+  void sim_gen_tandem_s4();
+  void create_tandem_check_s1();
+  void create_tandem_check_s2();
+
+  void create_check_state(std::stringstream& tandem_check, std::string& indent);
+  void create_check_state_header();
+  void create_check_instr_header();
+  void create_check_instr(std::stringstream& tandem_check, std::string& indent);
   void sim_gen_state_update();
   void sim_gen_execute_kernel();
   void sim_gen_execute_invoke();
@@ -159,7 +170,6 @@ private:
   void execute_kernel_mk_file();
   void execute_kernel_header();
 
-  void create_tandem_check();
   void create_tandem_constructor();
   void execute_tandem(std::stringstream& execute_kernel, std::string& indent);
 
@@ -237,6 +247,8 @@ private:
   bool qemu_device_ = false;
   bool zero_unintepreted_func_ = true;
   bool tandem_verification_ = false;
+  bool tandem_scenario_ = -1;
+  bool aux_pc_enable_ = false;
   std::string tandem_ref_map_;
   std::string e_class_name_;
 
