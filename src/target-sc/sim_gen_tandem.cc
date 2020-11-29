@@ -24,14 +24,14 @@ void IlaSim::create_check_state(std::stringstream& tandem_check, std::string& in
   auto ref_var_map = load_json(tandem_ref_map_);
   auto state_map = ref_var_map["state mapping"];
   for (uint i = 0; i < model_ptr_->state_num(); i++) {
+    auto state = model_ptr_->state(i);
+    auto state_name = state->name().str();    
     if (GetUidSort(model_ptr_->state(i)->sort()) == AST_UID_SORT::MEM) {
       tandem_check << indent << "void " << model_ptr_->name().str()
                    << "::check_" << state_name << "(" << kRTLSimType << "* v) {}"
                    << std::endl;  
       continue;
-    }      
-    auto state = model_ptr_->state(i);
-    auto state_name = state->name().str();
+    }
     try {
       auto v_name = state_map.at(state_name);      
       // checked_states.insert(state);
