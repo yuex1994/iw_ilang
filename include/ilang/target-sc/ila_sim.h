@@ -76,6 +76,10 @@ private:
   void create_tandem_check_s1();
   void create_tandem_check_s2();
 
+  void create_check_state(std::stringstream& tandem_check, std::string& indent);
+  void create_check_state_header();
+  void create_check_instr_header();
+  void create_check_instr(std::stringstream& tandem_check, std::string& indent);
   void sim_gen_state_update();
   void sim_gen_execute_kernel();
   void sim_gen_execute_invoke();
