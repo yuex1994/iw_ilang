@@ -21,9 +21,9 @@ void IlaSim::set_systemc_path(std::string systemc_path) {
 
 void IlaSim::sim_gen(std::string export_dir, bool external_mem, bool readable,
                      bool qemu_device, bool zero_unintepreted_func,
-                     bool tandem_verification, std::string tandem_ref_map) {
+                     bool tandem_scenario, std::string tandem_ref_map) {
   sim_gen_init(export_dir, external_mem, readable, qemu_device,
-               zero_unintepreted_func, tandem_verification, tandem_ref_map);
+               zero_unintepreted_func, tandem_scenario, tandem_ref_map);
   sim_gen_init_header();
   sim_gen_input();
   sim_gen_state();
@@ -39,7 +39,7 @@ void IlaSim::sim_gen(std::string export_dir, bool external_mem, bool readable,
 
 void IlaSim::sim_gen_init(std::string export_dir, bool external_mem,
                           bool readable, bool qemu_device,
-                          bool zero_unintepreted_func, bool tandem_verification,
+                          bool zero_unintepreted_func, int tandem_scenario,
                           std::string tandem_ref_map) {
   header_.str("");
   mk_script_.str("");
@@ -61,35 +61,36 @@ void IlaSim::sim_gen_init(std::string export_dir, bool external_mem,
   readable_ = readable;
   qemu_device_ = qemu_device;
   zero_unintepreted_func_ = zero_unintepreted_func;
-  tandem_verification_ = tandem_verification;
+  tandem_verification_ = (tandem_scenario >= 0);
+  tandem_scenario_ = tandem_scenario;
   tandem_ref_map_ = tandem_ref_map;
 }
 
 void IlaSim::sim_gen_tandem() {
-  header_ << header_indent_ << "#ifdef " << kTandemMacro << std::endl;
-  header_ << header_indent_ << "int tandem_f_ptr;" << std::endl;
-  header_ << header_indent_ << model_ptr_->name().str() << "();" << std::endl;
-  for (uint i = 0; i < model_ptr_->state_num(); i++) {
-    if (GetUidSort(model_ptr_->state(i)->sort()) != AST_UID_SORT::MEM) {
-      header_ << header_indent_ << "void check_"
-              << model_ptr_->state(i)->name().str() << "(" << kRTLSimType
-              << "* v);" << std::endl;
-    }
+  switch (tandem_scenario_) {
+    case 1: sim_gen_tandem_s1(); break;
+    case 2: sim_gen_tandem_s2(); break;
+    case 3: sim_gen_tandem_s3(); break;
+    case 4: sim_gen_tandem_s4(); break;
+    default: break;
   }
-  for (uint i = 0; i < model_ptr_->instr_num(); i++) {
-    header_ << header_indent_ << "void tandem_instr_"
-            << model_ptr_->instr(i)->name().str() << "(" << kRTLSimType
-            << "* v);" << std::endl;
-  }
-  header_ << header_indent_ << "typedef void (" << model_ptr_->name().str()
-          << "::*tandem_f_type)(" << kRTLSimType << "*);" << std::endl;
-  header_ << header_indent_ << "tandem_f_type tandem_f["
-          << model_ptr_->instr_num() + 1 << "];" << std::endl;
-  header_ << header_indent_ << "#endif" << std::endl;
-  
-  create_tandem_check();
+}
+
+void IlaSim::sim_gen_tandem_s1() {
+  aux_pc_enable_ = true;
+  create_tandem_check_s1();
+
+}
+
+void IlaSim::sim_gen_tandem_s2() {
+  create_tandem_check_s2();
   create_tandem_constructor();
-  
+}
+
+void IlaSim::sim_gen_tandem_s3() {
+}
+
+void IlaSim::sim_gen_tandem_s4() {
 }
 
 void IlaSim::sim_gen_init_header() {

@@ -5,22 +5,31 @@
 #include <ilang/util/log.h>
 
 namespace ilang{
-void IlaSim::create_tandem_check() {
-  std::ofstream outFile;
-  outFile.open(export_dir_ + model_ptr_->name().str() + "_tandem.cc");
-  std::stringstream tandem_check;
-  tandem_check.str("");
-  std::string indent = "";
-  tandem_check << indent << "#include \"" << model_ptr_->name().str() << ".h\""
-               << std::endl;
-  tandem_check << indent << "#ifdef " << kTandemMacro << std::endl;
+
+void IlaSim::create_check_state_header() {
+  header_ << header_indent_ << "int tandem_f_ptr;" << std::endl;
+  header_ << header_indent_ << model_ptr_->name().str() << "();" << std::endl;
+  for (uint i = 0; i < model_ptr_->state_num(); i++) {
+    if (GetUidSort(model_ptr_->state(i)->sort()) != AST_UID_SORT::MEM) {
+      header_ << header_indent_ << "void check_"
+              << model_ptr_->state(i)->name().str() << "(" << kRTLSimType
+              << "* v);" << std::endl;
+    }
+  }
+  header_ << header_indent_ << "void check_all_state(" << kRTLSimType << "* v);" << std::endl;
+}
+
+void IlaSim::create_check_state(std::stringstream& tandem_check, std::string& indent) {
 
   auto ref_var_map = load_json(tandem_ref_map_);
   auto state_map = ref_var_map["state mapping"];
-  // std::set<ExprPtr> checked_states;
   for (uint i = 0; i < model_ptr_->state_num(); i++) {
-    if (GetUidSort(model_ptr_->state(i)->sort()) == AST_UID_SORT::MEM)
+    if (GetUidSort(model_ptr_->state(i)->sort()) == AST_UID_SORT::MEM) {
+      tandem_check << indent << "void " << model_ptr_->name().str()
+                   << "::check_" << state_name << "(" << kRTLSimType << "* v) {}"
+                   << std::endl;  
       continue;
+    }      
     auto state = model_ptr_->state(i);
     auto state_name = state->name().str();
     try {
@@ -66,16 +75,27 @@ void IlaSim::create_tandem_check() {
     } catch (nlohmann::detail::out_of_range& e)
     {
       std::cout << "out of range: " << e.what() << '\n';
-      if (GetUidSort(state->sort()) != AST_UID_SORT::MEM) {
-        tandem_check << indent << "void " << model_ptr_->name().str()
-                   << "::check_" << state_name << "(" << kRTLSimType << "* v) {}"
-                   << std::endl;        
-      }
       continue;
     }
     tandem_check << indent << "}" << std::endl;
   }
 
+
+}
+
+void IlaSim::create_check_instr_header() {
+  for (uint i = 0; i < model_ptr_->instr_num(); i++) {
+    header_ << header_indent_ << "void tandem_instr_"
+            << model_ptr_->instr(i)->name().str() << "(" << kRTLSimType
+            << "* v);" << std::endl;
+  }
+  header_ << header_indent_ << "typedef void (" << model_ptr_->name().str()
+          << "::*tandem_f_type)(" << kRTLSimType << "*);" << std::endl;
+  header_ << header_indent_ << "tandem_f_type tandem_f["
+          << model_ptr_->instr_num() + 1 << "];" << std::endl;
+}
+
+void IlaSim::create_check_instr(std::stringstream& tandem_check, std::string& indent) {
   for (uint i = 0; i < model_ptr_->instr_num(); i++) {
     auto instr = model_ptr_->instr(i);
     tandem_check << indent << "void " << model_ptr_->name().str() << "::tandem_instr_"
@@ -84,16 +104,36 @@ void IlaSim::create_tandem_check() {
     for (auto updated_state_name : instr->updated_states()) {
       auto update_expr = instr->update(updated_state_name);
       auto updated_state = model_ptr_->state(updated_state_name);
-      if (GetUidSort(update_expr->sort()) == AST_UID_SORT::MEM)
-        continue;
-      // if (checked_states.find(updated_state) == checked_states.end())
-      //  continue;
       tandem_check << indent << "check_" << updated_state_name << "(v);" << std::endl;
     }
     decrease_indent(indent);
     tandem_check << indent << "}" << std::endl;
-  }
-  tandem_check << indent << "#endif" << std::endl;
+  }  
+}
+
+void IlaSim::create_tandem_check_s1() {
+  std::ofstream outFile;
+  outFile.open(export_dir_ + model_ptr_->name().str() + "_tandem.cc");
+  std::stringstream tandem_check;
+  tandem_check.str("");
+  std::string indent = "";
+  tandem_check << indent << "#include \"" << model_ptr_->name().str() << ".h\""
+               << std::endl;
+  create_check_state_header();
+  create_check_state(tandem_check, indent);
+  outFile << tandem_check.rdbuf();
+  outFile.close();  
+}
+
+void IlaSim::create_tandem_check_s2() {
+  std::ofstream outFile;
+  outFile.open(export_dir_ + model_ptr_->name().str() + "_tandem.cc");
+  std::stringstream tandem_check;
+  tandem_check.str("");
+  std::string indent = "";
+  tandem_check << indent << "#include \"" << model_ptr_->name().str() << ".h\""
+               << std::endl;
+
   outFile << tandem_check.rdbuf();
   outFile.close();
 }
@@ -121,7 +161,6 @@ void IlaSim::create_tandem_constructor() {
   for (uint i = 0; i < model_ptr_->instr_num(); i++) {
     tandem_constructor << indent << "tandem_f[" << i << "] = &" << model_ptr_->name().str() << "::tandem_instr_" << model_ptr_->instr(i)->name().str() << ";" << std::endl;
   }
-
   decrease_indent(indent);
   tandem_constructor << "}" << std::endl;
   tandem_constructor << "#endif" << std::endl;   
