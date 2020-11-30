@@ -20,7 +20,6 @@ void IlaSim::create_check_state_header() {
 }
 
 void IlaSim::create_check_state(std::stringstream& tandem_check, std::string& indent) {
-
   auto ref_var_map = load_json(tandem_ref_map_);
   auto state_map = ref_var_map["state mapping"];
   for (uint i = 0; i < model_ptr_->state_num(); i++) {
@@ -138,6 +137,131 @@ void IlaSim::create_tandem_check_s2() {
   outFile.close();
 }
 
+void IlaSim::create_ila_wrapper() {
+  std::ofstream outFile;
+  outFile.open(export_dir_ + model_ptr_->name().str() + "_ila.h");
+  std::stringstream ila_wrapper;
+  ila_wrapper.str("");
+  std::string indent = "";  
+  create_ilated_class(ila_wrapper, indent);
+  create_i_in(ila_wrapper, indent);
+  create_v_to_i(ila_wrapper, indent);
+
+
+  outFile << tandem_check.rdbuf();
+  outFile.close();  
+}
+
+void IlaSim::create_ilated_class(stringstream& ila_wrapper, string& indent) {
+  ila_wrapper << indent << "#include \"" << model_ptr_->name().str() << ".h\"" << std::endl;
+  ila_wrapper << indent << "class Ilated {" << std::endl;
+  ila_wrapper << indent << "public:" << std::endl;
+  increase_indent(indent);
+  ila_wrapper << indent << "Ilated() {" << std::endl;
+  increase_indent(indent);
+  ila_wrapper << indent << "i_top = new " << model_ptr_->name().str() << "();" << std::endl;
+  decrease_indent(indent);
+  ila_wrapper << indent << "}" << std::endl;
+  ila_wrapper << indent << "~Ilated() {" << std::endl;
+  increase_indent(indent);
+  ila_wrapper << indent << "delete i_top;" << std::endl;
+  decrease_indent(indent);
+  ila_wrapper << indent << "}" << std::endl;
+  ila_wrapper << indent << model_ptr_->name().str() << "* i_top;" << std::endl;
+  decrease_indent(indent);
+  ila_wrapper << indent << "};" << std::endl;
+}
+
+void IlaSim::create_i_in(stringstream& ila_wrapper, string& indent) {
+  ila_wrapper << indent << "class i_in {" << std::endl;
+  ila_wrapper << indent << "public:" << std::endl;
+  increase_indent(indent);
+  for (int i = 0; i < model_ptr_->input_num(); i++) {
+    auto input = model_ptr_->input(i);
+    if (GetUidExpr(input) == AST_UID_SORT::BOOL)
+      ila_wrapper << indent << "bool " << model_ptr_->name().str() << "_" << input->name().str() << ";" << std::endl;
+    else
+      ila_wrapper << indent << "uint" << input->sort()->bit_width() << "_t " << model_ptr_->name().str() << "_" << input->name().str() << ";" << std::endl; 
+  }
+  decrease_indent(indent);
+  ila_wrapper << indent << "};" << std::endl;
+}
+
+void IlaSim::create_input_v_to_i(stringstream& ila_wrapper, string& indent) {
+  auto ref_var_map = load_json(tandem_ref_map_);
+  auto interface_map = ref_var_map["interface mapping"];
+  ila_wrapper << indent << "i_in input_v_to_i(v_in test_v) {" << std::endl;
+  increase_indent(indent);
+  ila_wrapper << indent << "i_in test_i;" << std::endl;
+  for (const auto& item : interface_map.items()) {
+    if (item.value().is_string()) {
+      if (item.value().find("**") == std::string::npos) {
+        ila_wrapper << indent << "test_i." << item.value() << " = " << "test_v." << item.key() << ";" << std::endl;
+      }
+    } else if (item.value().is_array()) {
+      auto arr = item.value();
+      if (arr[0].find("**") == std::string::npos) {
+        for (int i = 0; i < arr.size(); i++) {
+          ila_wrapper << indent << "if (test_v." << item.key() << " == " << arr[i + 1] << ")" << std::endl;
+          increase_indent(indent);
+          ila_wrapper << indent << "test_i." << arr[0] << " = " << arr[i + 2] << ";" << std::endl;
+          decrease_indent(indent);
+        }
+      }
+    }
+  }
+  ila_wrapper << indent << "return test_i;" << std::endl;
+  decrease_indent(indent);
+  ila_wrapper << indent << "}" << std::endl;
+}
+
+void IlaSim::create_rtl_wrapper() {
+  std::ofstream outFile;
+  outFile.open(export_dir_ + model_ptr_->name().str() + "_rtl.h");
+  std::stringstream rtl_wrapper;
+  rtl_wrapper.str("");
+  std::string indent = "";  
+  create_verilated_class(rtl_wrapper, indent);
+  create_v_in(rtl_wrapper, indent);
+}
+
+void IlaSim::create_verilated_class(stringstream& rtl_wrapper, string& indent) {
+  auto rtl_map = load_json(tandem_rtl_);
+  auto rtl_name = rtl_map["VERILOG"];
+  auto includes = rtl_map["verilator_include"];
+  for (int i = 0; i < includes.size(); i++) 
+    rtl_wrapper << indent << "#include<V" << includes[i] << ".h>" << std::endl;
+  rtl_wrapper << indent << "class RTLVerilated {" << std::endl;
+  rtl_wrapper << indent << "public:" << std::endl;
+  increase_indent(indent);
+  rtl_wrapper << indent << "V" << rtl_name << "*v_top;" << std::endl;
+  rtl_wrapper << indent << "RTLVerilated() {" << std::endl;
+  increase_indent(indent);
+  rtl_wrapper << indent << "v_top = new V" << rtl_name << "(\"v_top\")" << std::endl;
+  rtl_wrapper << indent << "}" << std::endl;
+  decrease_indent(indent);
+  rtl_wrapper << indent << " ~RTLVerilated() {}" << std::endl;
+  decrease_indent(indent);
+  rtl_wrapper << indent << "};" << std::endl;  
+}
+
+void IlaSim::create_v_in(stringstream& rtl_wrapper, string& indent) {
+  auto rtl_map = load_json(tandem_rtl_);
+  auto rtl_inputs = rtl_map["verilog inputs"];
+  rtl_wrapper << indent << "class v_in {" << std::endl;
+  rtl_wrapper << indent << "public:" << std::endl;
+  increase_indent(indent);
+  for (const auto& item : rtl_inputs.items()) {
+    if (item.value() == 1) {
+      rtl_wrapper << indent << "bool " << item.key() << ";" << std::endl;
+    } else {
+      rtl_wrapper << indent << "uint" << item.value() << "_t " << item.key() << ";" << std::endl;
+    }
+  }
+  decrease_indent(indent);
+  rtl_wrapper << indent << "};" << std::endl; 
+}
+
 nlohmann::json IlaSim::load_json(std::string file_name) {
   std::ifstream fin(file_name);
   if (!fin.is_open()) {
@@ -155,15 +279,13 @@ void IlaSim::create_tandem_constructor() {
   std::stringstream tandem_constructor;
   std::string indent = "";
   tandem_constructor << indent << "#include \"" << model_ptr_->name().str() << ".h\"" << std::endl;
-  tandem_constructor << indent << "#ifdef " << kTandemMacro << std::endl;
   tandem_constructor << indent << model_ptr_->name().str() << "::" << model_ptr_->name().str() << "() {" << std::endl;
   increase_indent(indent);
   for (uint i = 0; i < model_ptr_->instr_num(); i++) {
     tandem_constructor << indent << "tandem_f[" << i << "] = &" << model_ptr_->name().str() << "::tandem_instr_" << model_ptr_->instr(i)->name().str() << ";" << std::endl;
   }
   decrease_indent(indent);
-  tandem_constructor << "}" << std::endl;
-  tandem_constructor << "#endif" << std::endl;   
+  tandem_constructor << "}" << std::endl;  
   outFile << tandem_constructor.rdbuf();
   outFile.close();
 }

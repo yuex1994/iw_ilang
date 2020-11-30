@@ -75,6 +75,18 @@ private:
   void sim_gen_tandem_s4();
   void create_tandem_check_s1();
   void create_tandem_check_s2();
+  void create_ila_wrapper();
+  void create_ilated_class(stringstream& ila_wrapper, string& indent);
+  void create_i_in(stringstream& ila_wrapper, string& indent);
+  void create_input_v_to_i(stringstream& ila_wrapper, string& indent);
+  void create_rtl_wrapper();
+  void create_verilated_class(stringstream& rtl_wrapper, string& indent);
+  void create_v_in(stringstream& rtl_wrapper, string& indent);
+
+
+
+
+
 
   void create_check_state(std::stringstream& tandem_check, std::string& indent);
   void create_check_state_header();
@@ -247,9 +259,10 @@ private:
   bool qemu_device_ = false;
   bool zero_unintepreted_func_ = true;
   bool tandem_verification_ = false;
-  bool tandem_scenario_ = -1;
+  int tandem_scenario_ = -1;
   bool aux_pc_enable_ = false;
   std::string tandem_ref_map_;
+  std::string tandem_rtl_;
   std::string e_class_name_;
 
   const std::string kTandemMacro = "TANDEM_VERIFICATION";
