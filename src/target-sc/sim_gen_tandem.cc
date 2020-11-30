@@ -152,7 +152,7 @@ void IlaSim::create_ila_wrapper() {
   outFile.close();  
 }
 
-void IlaSim::create_ilated_class(stringstream& ila_wrapper, string& indent) {
+void IlaSim::create_ilated_class(std::stringstream& ila_wrapper, std::string& indent) {
   ila_wrapper << indent << "#include \"" << model_ptr_->name().str() << ".h\"" << std::endl;
   ila_wrapper << indent << "class Ilated {" << std::endl;
   ila_wrapper << indent << "public:" << std::endl;
@@ -172,7 +172,7 @@ void IlaSim::create_ilated_class(stringstream& ila_wrapper, string& indent) {
   ila_wrapper << indent << "};" << std::endl;
 }
 
-void IlaSim::create_i_in(stringstream& ila_wrapper, string& indent) {
+void IlaSim::create_i_in(std::stringstream& ila_wrapper, std::string& indent) {
   ila_wrapper << indent << "class i_in {" << std::endl;
   ila_wrapper << indent << "public:" << std::endl;
   increase_indent(indent);
@@ -187,7 +187,7 @@ void IlaSim::create_i_in(stringstream& ila_wrapper, string& indent) {
   ila_wrapper << indent << "};" << std::endl;
 }
 
-void IlaSim::create_input_v_to_i(stringstream& ila_wrapper, string& indent) {
+void IlaSim::create_input_v_to_i(std::stringstream& ila_wrapper, std::string& indent) {
   auto ref_var_map = load_json(tandem_ref_map_);
   auto interface_map = ref_var_map["interface mapping"];
   ila_wrapper << indent << "i_in input_v_to_i(v_in test_v) {" << std::endl;
@@ -225,7 +225,7 @@ void IlaSim::create_rtl_wrapper() {
   create_v_in(rtl_wrapper, indent);
 }
 
-void IlaSim::create_verilated_class(stringstream& rtl_wrapper, string& indent) {
+void IlaSim::create_verilated_class(std::stringstream& rtl_wrapper, std::string& indent) {
   auto rtl_map = load_json(tandem_rtl_);
   auto rtl_name = rtl_map["VERILOG"];
   auto includes = rtl_map["verilator_include"];
@@ -245,7 +245,7 @@ void IlaSim::create_verilated_class(stringstream& rtl_wrapper, string& indent) {
   rtl_wrapper << indent << "};" << std::endl;  
 }
 
-void IlaSim::create_v_in(stringstream& rtl_wrapper, string& indent) {
+void IlaSim::create_v_in(std::stringstream& rtl_wrapper, std::string& indent) {
   auto rtl_map = load_json(tandem_rtl_);
   auto rtl_inputs = rtl_map["verilog inputs"];
   rtl_wrapper << indent << "class v_in {" << std::endl;
