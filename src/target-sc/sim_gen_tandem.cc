@@ -230,7 +230,7 @@ void IlaSim::create_verilated_class(std::stringstream& rtl_wrapper, std::string&
   auto rtl_name = rtl_map["VERILOG"].get<std::string>();
   auto includes = rtl_map["verilator_include"];
   for (nlohmann::json::iterator it = includes.begin(); it != includes.end(); ++it) 
-    rtl_wrapper << indent << "#include<V" << *it << ".h>" << std::endl;
+    rtl_wrapper << indent << "#include <V" << it->get<std::string>() << ".h>" << std::endl;
   rtl_wrapper << indent << "class RTLVerilated {" << std::endl;
   rtl_wrapper << indent << "public:" << std::endl;
   increase_indent(indent);
