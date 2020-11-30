@@ -80,6 +80,8 @@ void IlaSim::sim_gen_tandem_s1() {
   aux_pc_enable_ = true;
   tandem_rtl_ = "../refinement/rtl_tmp.json";
   create_tandem_check_s1();
+  create_ila_wrapper();
+  create_rtl_wrapper();
 
 }
 
