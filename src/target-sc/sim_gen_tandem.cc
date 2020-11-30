@@ -194,7 +194,7 @@ void IlaSim::create_input_v_to_i(std::stringstream& ila_wrapper, std::string& in
   for (const auto& item : interface_map.items()) {
     if (item.value().is_string()) {
       if (item.value().get<std::string>().find("**") == std::string::npos) {
-        ila_wrapper << indent << "test_i." << item.value() << " = " << "test_v." << item.key() << ";" << std::endl;
+        ila_wrapper << indent << "test_i." << item.value().get<std::string>() << " = " << "test_v." << item.key() << ";" << std::endl;
       }
     } else if (item.value().is_array()) {
       auto arr = item.value().get<std::vector<std::string>>();
@@ -227,7 +227,7 @@ void IlaSim::create_rtl_wrapper() {
 
 void IlaSim::create_verilated_class(std::stringstream& rtl_wrapper, std::string& indent) {
   auto rtl_map = load_json(tandem_rtl_);
-  auto rtl_name = rtl_map["VERILOG"];
+  auto rtl_name = rtl_map["VERILOG"].get<std::string>();
   auto includes = rtl_map["verilator_include"];
   for (nlohmann::json::iterator it = includes.begin(); it != includes.end(); ++it) 
     rtl_wrapper << indent << "#include<V" << *it << ".h>" << std::endl;
