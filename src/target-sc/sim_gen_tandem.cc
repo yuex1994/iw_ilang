@@ -308,6 +308,17 @@ nlohmann::json IlaSim::load_json(std::string file_name) {
   return j;
 }
 
+void IlaSim::create_default_constructor() {
+  std::ofstream outFile;
+  outFile.open(export_dir_ + model_ptr_->name().str() + ".cc");
+  std::stringstream tandem_constructor;
+  std::string indent = "";
+  tandem_constructor << indent << "#include \"" << model_ptr_->name().str() << ".h\"" << std::endl;
+  tandem_constructor << indent << model_ptr_->name().str() << "::" << model_ptr_->name().str() << "() {}" << std::endl;
+  outFile << tandem_constructor.rdbuf();
+  outFile.close();
+}
+
 void IlaSim::create_tandem_constructor() {
   std::ofstream outFile;
   outFile.open(export_dir_ + model_ptr_->name().str() + ".cc");

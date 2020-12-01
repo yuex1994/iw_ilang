@@ -184,6 +184,7 @@ private:
   void execute_kernel_mk_file();
   void execute_kernel_header();
 
+  void create_normal_constructor();
   void create_tandem_constructor();
   void execute_tandem(std::stringstream& execute_kernel, std::string& indent);
 
