@@ -141,8 +141,6 @@ void IlaSim::create_ila_wrapper() {
   std::stringstream ila_wrapper;
   ila_wrapper.str("");
   std::string indent = "";  
-  create_i_in(ila_wrapper, indent);
-  create_input_v_to_i(ila_wrapper, indent);  
   create_ilated_class(ila_wrapper, indent);
   outFile << ila_wrapper.rdbuf();
   outFile.close();  
@@ -150,6 +148,8 @@ void IlaSim::create_ila_wrapper() {
 
 void IlaSim::create_ilated_class(std::stringstream& ila_wrapper, std::string& indent) {
   ila_wrapper << indent << "#include \"" << model_ptr_->name().str() << ".h\"" << std::endl;
+  create_i_in(ila_wrapper, indent);
+  create_input_v_to_i(ila_wrapper, indent);  
   ila_wrapper << indent << "class Ilated {" << std::endl;
   ila_wrapper << indent << "public:" << std::endl;
   increase_indent(indent);
@@ -229,7 +229,6 @@ void IlaSim::create_rtl_wrapper() {
   std::stringstream rtl_wrapper;
   rtl_wrapper.str("");
   std::string indent = "";  
-  create_v_in(rtl_wrapper, indent);
   create_verilated_class(rtl_wrapper, indent);
   outFile << rtl_wrapper.rdbuf();
   outFile.close();    
@@ -241,6 +240,7 @@ void IlaSim::create_verilated_class(std::stringstream& rtl_wrapper, std::string&
   auto includes = rtl_map["verilator_include"];
   for (nlohmann::json::iterator it = includes.begin(); it != includes.end(); ++it) 
     rtl_wrapper << indent << "#include <V" << it->get<std::string>() << ".h>" << std::endl;
+  create_v_in(rtl_wrapper, indent);
   rtl_wrapper << indent << "class RTLVerilated {" << std::endl;
   rtl_wrapper << indent << "public:" << std::endl;
   increase_indent(indent);
