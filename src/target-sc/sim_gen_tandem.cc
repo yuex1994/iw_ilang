@@ -189,7 +189,7 @@ void IlaSim::create_i_input(std::stringstream& ila_wrapper, std::string& indent)
   increase_indent(indent);
   for (int i = 0; i < model_ptr_->input_num(); i++) {
     auto input = model_ptr_->input(i);
-    ila_wrapper << "i_top->" << model_ptr_->name().str() << "_" << input->name().str() << " = t_i." << model_ptr_->name().str() << input->name().str() << ";" << std::endl; 
+    ila_wrapper << indent << "i_top->" << model_ptr_->name().str() << "_" << input->name().str() << " = t_i." << model_ptr_->name().str() << "_" << input->name().str() << ";" << std::endl; 
   }
   decrease_indent(indent);
   ila_wrapper << indent << "}" << std::endl;
