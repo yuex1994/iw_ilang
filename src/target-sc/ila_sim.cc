@@ -83,7 +83,7 @@ void IlaSim::sim_gen_tandem_s1() {
   create_tandem_check_s1();
   create_ila_wrapper();
   create_rtl_wrapper();
-  create_tandem_constructor();
+  // create_tandem_constructor();
 
 }
 
@@ -224,16 +224,16 @@ void IlaSim::sim_gen_execute_kernel() {
   execute_kernel << indent << "#include \"" << model_ptr_->name() << ".h\""
                  << std::endl;
   if (tandem_verification_) {
-    execute_kernel << indent << "#ifdef " << kTandemMacro << std::endl;
+    // execute_kernel << indent << "#ifdef " << kTandemMacro << std::endl;
     execute_kernel << indent << "void " << model_ptr_->name() << "::compute(" << kRTLSimType << "* v) {"
                    << std::endl;    
     increase_indent(indent);
     execute_kernel << indent << "tandem_f_ptr = -1;" << std::endl;
     decrease_indent(indent); 
-    execute_kernel << indent << "#else" << std::endl;
-    execute_kernel << indent << "void " << model_ptr_->name() << "::compute() {"
-                   << std::endl;
-    execute_kernel << indent << "#endif" << std::endl;
+    // execute_kernel << indent << "#else" << std::endl;
+    // execute_kernel << indent << "void " << model_ptr_->name() << "::compute() {"
+                  //  << std::endl;
+    // execute_kernel << indent << "#endif" << std::endl;
   } else 
     execute_kernel << indent << "void " << model_ptr_->name() << "::compute() {"
       << std::endl;
