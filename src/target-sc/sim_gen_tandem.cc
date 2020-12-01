@@ -143,7 +143,6 @@ void IlaSim::create_ila_wrapper() {
   std::string indent = "";  
   create_ilated_class(ila_wrapper, indent);
   create_i_in(ila_wrapper, indent);
-  create_i_input(ila_wrapper, indent);
   create_input_v_to_i(ila_wrapper, indent);
   outFile << ila_wrapper.rdbuf();
   outFile.close();  
@@ -159,6 +158,7 @@ void IlaSim::create_ilated_class(std::stringstream& ila_wrapper, std::string& in
   ila_wrapper << indent << "i_top = new " << model_ptr_->name().str() << "();" << std::endl;
   decrease_indent(indent);
   ila_wrapper << indent << "}" << std::endl;
+  create_i_input(ila_wrapper, indent);
   ila_wrapper << indent << "~Ilated() {" << std::endl;
   increase_indent(indent);
   ila_wrapper << indent << "delete i_top;" << std::endl;
@@ -231,7 +231,6 @@ void IlaSim::create_rtl_wrapper() {
   std::string indent = "";  
   create_verilated_class(rtl_wrapper, indent);
   create_v_in(rtl_wrapper, indent);
-  create_v_input(rtl_wrapper, indent);
   outFile << rtl_wrapper.rdbuf();
   outFile.close();    
 }
@@ -251,6 +250,7 @@ void IlaSim::create_verilated_class(std::stringstream& rtl_wrapper, std::string&
   rtl_wrapper << indent << "v_top = new V" << rtl_name << "(\"v_top\");" << std::endl;
   decrease_indent(indent);
   rtl_wrapper << indent << "}" << std::endl;
+  create_v_input(rtl_wrapper, indent);
   rtl_wrapper << indent << " ~RTLVerilated() {}" << std::endl;
   decrease_indent(indent);
   rtl_wrapper << indent << "};" << std::endl;  
@@ -276,7 +276,7 @@ void IlaSim::create_v_in(std::stringstream& rtl_wrapper, std::string& indent) {
 void IlaSim::create_v_input(std::stringstream& rtl_wrapper, std::string& indent) {
   auto rtl_map = load_json(tandem_rtl_);
   auto rtl_inputs = rtl_map["verilog inputs"];
-  rtl_wrapper << indent << "class v_input(v_in t_v) {" << std::endl;
+  rtl_wrapper << indent << "void v_input(v_in t_v) {" << std::endl;
   increase_indent(indent);
   for (const auto& item : rtl_inputs.items()) {
     rtl_wrapper << indent << "v->v_top->" << item.key() << " = t_v." << item.key() << ";" << std::endl;
