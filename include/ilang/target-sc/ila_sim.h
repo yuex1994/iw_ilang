@@ -78,10 +78,12 @@ private:
   void create_ila_wrapper();
   void create_ilated_class(std::stringstream& ila_wrapper, std::string& indent);
   void create_i_in(std::stringstream& ila_wrapper, std::string& indent);
+  void create_i_input(std::stringstream& ila_wrapper, std::string& indent);  
   void create_input_v_to_i(std::stringstream& ila_wrapper, std::string& indent);
   void create_rtl_wrapper();
   void create_verilated_class(std::stringstream& rtl_wrapper, std::string& indent);
   void create_v_in(std::stringstream& rtl_wrapper, std::string& indent);
+  void create_v_input(std::stringstream& rtl_wrapper, std::string& indent);
 
 
 

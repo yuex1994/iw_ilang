@@ -143,6 +143,7 @@ void IlaSim::create_ila_wrapper() {
   std::string indent = "";  
   create_ilated_class(ila_wrapper, indent);
   create_i_in(ila_wrapper, indent);
+  create_i_input(ila_wrapper, indent);
   create_input_v_to_i(ila_wrapper, indent);
   outFile << ila_wrapper.rdbuf();
   outFile.close();  
@@ -183,6 +184,17 @@ void IlaSim::create_i_in(std::stringstream& ila_wrapper, std::string& indent) {
   ila_wrapper << indent << "};" << std::endl;
 }
 
+void IlaSim::create_i_input(std::stringstream& ila_wrapper, std::string& indent) {
+  ila_wrapper << indent << "void i_input (i_in t_i) {" << std::endl;
+  increase_indent(indent);
+  for (int i = 0; i < model_ptr_->input_num(); i++) {
+    auto input = model_ptr_->input(i);
+    ila_wrapper << "i->i_top->" << model_ptr_->name().str() << "_" << input->name().str() << " = t_i." << model_ptr_->name().str() << input->name().str() << ";" << std::endl; 
+  }
+  decrease_indent(indent);
+  ila_wrapper << indent << "}" << std::endl;
+}
+
 void IlaSim::create_input_v_to_i(std::stringstream& ila_wrapper, std::string& indent) {
   auto ref_var_map = load_json(tandem_ref_map_);
   auto interface_map = ref_var_map["interface mapping"];
@@ -192,7 +204,7 @@ void IlaSim::create_input_v_to_i(std::stringstream& ila_wrapper, std::string& in
   for (const auto& item : interface_map.items()) {
     if (item.value().is_string()) {
       if (item.value().get<std::string>().find("**") == std::string::npos) {
-        ila_wrapper << indent << "test_i." << item.value().get<std::string>() << " = " << "test_v." << item.key() << ";" << std::endl;
+        ila_wrapper << indent << "test_i." << model_ptr_->name().str() << "_" << item.value().get<std::string>() << " = " << "test_v." << item.key() << ";" << std::endl;
       }
     } else if (item.value().is_array()) {
       auto arr = item.value().get<std::vector<std::string>>();
@@ -200,7 +212,7 @@ void IlaSim::create_input_v_to_i(std::stringstream& ila_wrapper, std::string& in
         for (int i = 0; i < (arr.size() - 1); i+=2) {
           ila_wrapper << indent << "if (test_v." << item.key() << " == " << arr[i + 1] << ")" << std::endl;
           increase_indent(indent);
-          ila_wrapper << indent << "test_i." << arr[0] << " = " << arr[i + 2] << ";" << std::endl;
+          ila_wrapper << indent << "test_i." << model_ptr_->name().str() << "_" << arr[0] << " = " << arr[i + 2] << ";" << std::endl;
           decrease_indent(indent);
         }
       }
@@ -219,6 +231,7 @@ void IlaSim::create_rtl_wrapper() {
   std::string indent = "";  
   create_verilated_class(rtl_wrapper, indent);
   create_v_in(rtl_wrapper, indent);
+  create_v_input(rtl_wrapper, indent);
   outFile << rtl_wrapper.rdbuf();
   outFile.close();    
 }
@@ -258,6 +271,18 @@ void IlaSim::create_v_in(std::stringstream& rtl_wrapper, std::string& indent) {
   }
   decrease_indent(indent);
   rtl_wrapper << indent << "};" << std::endl; 
+}
+
+void IlaSim::create_v_input(std::stringstream& rtl_wrapper, std::string& indent) {
+  auto rtl_map = load_json(tandem_rtl_);
+  auto rtl_inputs = rtl_map["verilog inputs"];
+  rtl_wrapper << indent << "class v_input(v_in t_v) {" << std::endl;
+  increase_indent(indent);
+  for (const auto& item : rtl_inputs.items()) {
+    rtl_wrapper << indent << "v->v_top->" << item.key() << " = t_v." << item.key() << ";" << std::endl;
+  }
+  decrease_indent(indent);
+  rtl_wrapper << indent << "}" << std::endl; 
 }
 
 nlohmann::json IlaSim::load_json(std::string file_name) {
