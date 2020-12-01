@@ -10,11 +10,9 @@ void IlaSim::create_check_state_header() {
   header_ << header_indent_ << "int tandem_f_ptr;" << std::endl;
   header_ << header_indent_ << model_ptr_->name().str() << "();" << std::endl;
   for (uint i = 0; i < model_ptr_->state_num(); i++) {
-    if (GetUidSort(model_ptr_->state(i)->sort()) != AST_UID_SORT::MEM) {
       header_ << header_indent_ << "void check_"
               << model_ptr_->state(i)->name().str() << "(" << kRTLSimType
               << "* v);" << std::endl;
-    }
   }
   header_ << header_indent_ << "void check_all_state(" << kRTLSimType << "* v);" << std::endl;
 }
