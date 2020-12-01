@@ -237,9 +237,9 @@ void IlaSim::create_verilated_class(std::stringstream& rtl_wrapper, std::string&
   rtl_wrapper << indent << "V" << rtl_name << "*v_top;" << std::endl;
   rtl_wrapper << indent << "RTLVerilated() {" << std::endl;
   increase_indent(indent);
-  rtl_wrapper << indent << "v_top = new V" << rtl_name << "(\"v_top\")" << std::endl;
-  rtl_wrapper << indent << "}" << std::endl;
+  rtl_wrapper << indent << "v_top = new V" << rtl_name << "(\"v_top\");" << std::endl;
   decrease_indent(indent);
+  rtl_wrapper << indent << "}" << std::endl;
   rtl_wrapper << indent << " ~RTLVerilated() {}" << std::endl;
   decrease_indent(indent);
   rtl_wrapper << indent << "};" << std::endl;  
