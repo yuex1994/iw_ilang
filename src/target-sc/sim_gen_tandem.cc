@@ -199,7 +199,7 @@ void IlaSim::create_input_v_to_i(std::stringstream& ila_wrapper, std::string& in
     } else if (item.value().is_array()) {
       auto arr = item.value().get<std::vector<std::string>>();
       if (arr[0].find("**") == std::string::npos) {
-        for (int i = 0; i < (arr.size() >> 2); i+=2) {
+        for (int i = 0; i < (arr.size() - 1); i+=2) {
           ila_wrapper << indent << "if (test_v." << item.key() << " == " << arr[i + 1] << ")" << std::endl;
           increase_indent(indent);
           ila_wrapper << indent << "test_i." << arr[0] << " = " << arr[i + 2] << ";" << std::endl;
