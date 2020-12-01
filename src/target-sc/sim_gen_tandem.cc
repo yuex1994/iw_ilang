@@ -189,7 +189,7 @@ void IlaSim::create_i_input(std::stringstream& ila_wrapper, std::string& indent)
   increase_indent(indent);
   for (int i = 0; i < model_ptr_->input_num(); i++) {
     auto input = model_ptr_->input(i);
-    ila_wrapper << "i->i_top->" << model_ptr_->name().str() << "_" << input->name().str() << " = t_i." << model_ptr_->name().str() << input->name().str() << ";" << std::endl; 
+    ila_wrapper << "i_top->" << model_ptr_->name().str() << "_" << input->name().str() << " = t_i." << model_ptr_->name().str() << input->name().str() << ";" << std::endl; 
   }
   decrease_indent(indent);
   ila_wrapper << indent << "}" << std::endl;
@@ -279,7 +279,7 @@ void IlaSim::create_v_input(std::stringstream& rtl_wrapper, std::string& indent)
   rtl_wrapper << indent << "void v_input(v_in t_v) {" << std::endl;
   increase_indent(indent);
   for (const auto& item : rtl_inputs.items()) {
-    rtl_wrapper << indent << "v->v_top->" << item.key() << " = t_v." << item.key() << ";" << std::endl;
+    rtl_wrapper << indent << "v_top->" << item.key() << " = t_v." << item.key() << ";" << std::endl;
   }
   decrease_indent(indent);
   rtl_wrapper << indent << "}" << std::endl; 
