@@ -141,9 +141,9 @@ void IlaSim::create_ila_wrapper() {
   std::stringstream ila_wrapper;
   ila_wrapper.str("");
   std::string indent = "";  
-  create_ilated_class(ila_wrapper, indent);
   create_i_in(ila_wrapper, indent);
-  create_input_v_to_i(ila_wrapper, indent);
+  create_input_v_to_i(ila_wrapper, indent);  
+  create_ilated_class(ila_wrapper, indent);
   outFile << ila_wrapper.rdbuf();
   outFile.close();  
 }
@@ -229,8 +229,8 @@ void IlaSim::create_rtl_wrapper() {
   std::stringstream rtl_wrapper;
   rtl_wrapper.str("");
   std::string indent = "";  
-  create_verilated_class(rtl_wrapper, indent);
   create_v_in(rtl_wrapper, indent);
+  create_verilated_class(rtl_wrapper, indent);
   outFile << rtl_wrapper.rdbuf();
   outFile.close();    
 }
