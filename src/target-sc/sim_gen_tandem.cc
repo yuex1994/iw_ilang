@@ -77,7 +77,7 @@ void IlaSim::create_check_state(std::stringstream& tandem_check, std::string& in
     tandem_check << indent << "}" << std::endl;
   }
 
-  tandem_check << indent << "void check_all_state(" << kRTLSimType << ") {" << std::endl;
+  tandem_check << indent << "void check_all_state(" << kRTLSimType << "* v) {" << std::endl;
   increase_indent(indent);
   for (int i = 0; i < model_ptr_->state_num(); i++) {
     auto state = model_ptr_->state(i);
@@ -87,9 +87,8 @@ void IlaSim::create_check_state(std::stringstream& tandem_check, std::string& in
       tandem_check << indent << "check_" << state_name << "(v);" << std::endl; 
     } catch (nlohmann::detail::out_of_range& e) {}
   }
+  decrease_indent(indent);  
   tandem_check << indent << "}" << std::endl;
-  decrease_indent(indent);
-
 
 }
 
