@@ -176,6 +176,7 @@ void IlaSim::create_ilated_class(std::stringstream& ila_wrapper, std::string& in
   ila_wrapper << indent << "delete i_top;" << std::endl;
   decrease_indent(indent);
   ila_wrapper << indent << "}" << std::endl;
+  create_ila_next_cycle(ila_wrapper, indent);
   ila_wrapper << indent << model_ptr_->name().str() << "* i_top;" << std::endl;
   decrease_indent(indent);
   ila_wrapper << indent << "};" << std::endl;
@@ -235,6 +236,14 @@ void IlaSim::create_input_v_to_i(std::stringstream& ila_wrapper, std::string& in
   ila_wrapper << indent << "}" << std::endl;
 }
 
+void IlaSim::create_ila_next_instr(std::stringstream& ila_wrapper, std::string& indent) {
+  ila_wrapper << indent << "void next_instr(RTLVerilated* v) {" << std::endl;
+  increase_indent(indent);
+  ila_wrapper << indent << "i_top->compute(v);" << std::endl;
+  decrease_indent(indent);
+  ila_wrapper << indent << "}" << std::endl;
+}
+
 void IlaSim::create_rtl_wrapper() {
   std::ofstream outFile;
   outFile.open(export_dir_ + model_ptr_->name().str() + "_rtl.h");
@@ -263,7 +272,12 @@ void IlaSim::create_verilated_class(std::stringstream& rtl_wrapper, std::string&
   decrease_indent(indent);
   rtl_wrapper << indent << "}" << std::endl;
   create_v_input(rtl_wrapper, indent);
-  rtl_wrapper << indent << " ~RTLVerilated() {}" << std::endl;
+  rtl_wrapper << indent << " ~RTLVerilated() {" << std::endl;
+  increase_indent(indent);
+  rtl_wrapper << indent << "delete v_top;" << std::endl;
+  decrease_indent(indent);
+  rtl_wrapper << indent << "}" << std::endl;
+  create_rtl_next_cycle(rtl_wrapper, indent);
   decrease_indent(indent);
   rtl_wrapper << indent << "};" << std::endl;  
 }
@@ -295,6 +309,20 @@ void IlaSim::create_v_input(std::stringstream& rtl_wrapper, std::string& indent)
   }
   decrease_indent(indent);
   rtl_wrapper << indent << "}" << std::endl; 
+}
+
+void IlaSim::create_rtl_next_cycle(std::stringstream& rtl_wrapper, std::string& indent) {
+  auto rtl_map = load_json(tandem_rtl_);
+  string clk_signal = rtl_map["verilog clock"];
+  string clk_edge = rtl_map["verilog clock edge"];
+  rtl_wrapper << indent << "void next_cycle() {" << std::endl;
+  increase_indent(indent);
+  rtl_wrapper << indent << "v_top->clk = " << (clk_edge) ? 0 : 1 << ";" << std::endl;
+  rtl_wrapper << indent << "v_top->eval();" << std::endl;
+  rtl_wrapper << indent << "v_top->clk = " << (clk_edge) ? 1 : 0 << ";" << std::endl;
+  rtl_wrapper << indent << "v_top->eval();" << std::endl;
+  decrease_indent(indent);
+  rtl_wrapper << indent << "}" << std::endl;
 }
 
 nlohmann::json IlaSim::load_json(std::string file_name) {
