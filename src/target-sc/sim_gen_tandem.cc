@@ -317,9 +317,9 @@ void IlaSim::create_rtl_next_cycle(std::stringstream& rtl_wrapper, std::string& 
   bool clk_edge = rtl_map["verilog clock edge"].get<bool>();
   rtl_wrapper << indent << "void next_cycle() {" << std::endl;
   increase_indent(indent);
-  rtl_wrapper << indent << "v_top->clk = " << ((clk_edge) ? 0 : 1;) << ";" << std::endl;
+  rtl_wrapper << indent << "v_top->clk = " << ((clk_edge) ? 0 : 1) << ";" << std::endl;
   rtl_wrapper << indent << "v_top->eval();" << std::endl;
-  rtl_wrapper << indent << "v_top->clk = " << ((clk_edge) ? 1 : 0;)<< ";" << std::endl;
+  rtl_wrapper << indent << "v_top->clk = " << ((clk_edge) ? 1 : 0)<< ";" << std::endl;
   rtl_wrapper << indent << "v_top->eval();" << std::endl;
   decrease_indent(indent);
   rtl_wrapper << indent << "}" << std::endl;
