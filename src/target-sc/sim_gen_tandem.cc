@@ -313,13 +313,13 @@ void IlaSim::create_v_input(std::stringstream& rtl_wrapper, std::string& indent)
 
 void IlaSim::create_rtl_next_cycle(std::stringstream& rtl_wrapper, std::string& indent) {
   auto rtl_map = load_json(tandem_rtl_);
-  string clk_signal = rtl_map["verilog clock"];
-  string clk_edge = rtl_map["verilog clock edge"];
+  string clk_signal = rtl_map["verilog clock"].get<std::string>();
+  bool clk_edge = rtl_map["verilog clock edge"].get<bool>();
   rtl_wrapper << indent << "void next_cycle() {" << std::endl;
   increase_indent(indent);
-  rtl_wrapper << indent << "v_top->clk = " << (clk_edge) ? 0 : 1 << ";" << std::endl;
+  rtl_wrapper << indent << "v_top->clk = " << ((clk_edge) ? 0 : 1;) << ";" << std::endl;
   rtl_wrapper << indent << "v_top->eval();" << std::endl;
-  rtl_wrapper << indent << "v_top->clk = " << (clk_edge) ? 1 : 0 << ";" << std::endl;
+  rtl_wrapper << indent << "v_top->clk = " << ((clk_edge) ? 1 : 0;)<< ";" << std::endl;
   rtl_wrapper << indent << "v_top->eval();" << std::endl;
   decrease_indent(indent);
   rtl_wrapper << indent << "}" << std::endl;
