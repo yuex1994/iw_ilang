@@ -187,7 +187,7 @@ private:
   void create_default_constructor();
   void create_tandem_constructor();
   void create_rtl_next_cycle(std::stringstream& rtl_wrapper, std::string& indent);
-  void create_ila_next_cycle(std::stringstream& ila_wrapper, std::string& indent);
+  void create_ila_next_instr(std::stringstream& ila_wrapper, std::string& indent);
 
   void execute_tandem(std::stringstream& execute_kernel, std::string& indent);
 

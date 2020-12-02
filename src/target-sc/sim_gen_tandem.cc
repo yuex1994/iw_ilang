@@ -176,7 +176,7 @@ void IlaSim::create_ilated_class(std::stringstream& ila_wrapper, std::string& in
   ila_wrapper << indent << "delete i_top;" << std::endl;
   decrease_indent(indent);
   ila_wrapper << indent << "}" << std::endl;
-  create_ila_next_cycle(ila_wrapper, indent);
+  create_ila_next_instr(ila_wrapper, indent);
   ila_wrapper << indent << model_ptr_->name().str() << "* i_top;" << std::endl;
   decrease_indent(indent);
   ila_wrapper << indent << "};" << std::endl;
