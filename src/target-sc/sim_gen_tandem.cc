@@ -188,7 +188,7 @@ void IlaSim::create_i_in(std::stringstream& ila_wrapper, std::string& indent) {
   increase_indent(indent);
   for (int i = 0; i < model_ptr_->input_num(); i++) {
     auto input = model_ptr_->input(i);
-    if (GetUidSort(GetUidExpr(input)->sort()) == AST_UID_SORT::BOOL)
+    if (GetUidSort((GetUidExpr(input))->sort()) == AST_UID_SORT::BOOL)
       ila_wrapper << indent << "bool " << model_ptr_->name().str() << "_" << input->name().str() << ";" << std::endl;
     else
       ila_wrapper << indent << "uint" << input->sort()->bit_width() << "_t " << model_ptr_->name().str() << "_" << input->name().str() << ";" << std::endl; 
