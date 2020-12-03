@@ -316,8 +316,9 @@ void IlaSim::create_rtl_wrapper_s2() {
   outFile << rtl_wrapper.rdbuf();
   outFile.close();    
 
+  std::ofstream outFile_src;
   outFile_src.open(export_dir_ + model_ptr_->name().str() + "_rtl.cc");
-  stringstream rtl_wrapper_src;
+  std::stringstream rtl_wrapper_src;
   rtl_wrapper_src << "#include \"" << model_ptr_->name().str() << "_ila.h\"" << std::endl;  
   rtl_wrapper_src << "#include \"" << model_ptr_->name().str() << "_rtl.h\"" << std::endl << std::endl;
   create_instr_monitor_class(rtl_wrapper_src, indent);
@@ -475,7 +476,7 @@ void IlaSim::create_verilated_class(std::stringstream& rtl_wrapper, std::string&
   rtl_wrapper << indent << "};" << std::endl;  
 }
 
-void create_verilated_class_header_s2(std::stringstream& rtl_wrapper, std::string& indent) {
+void IlaSim::create_verilated_class_header_s2(std::stringstream& rtl_wrapper, std::string& indent) {
   auto rtl_map = load_json(tandem_rtl_);
   auto rtl_name = rtl_map["VERILOG"].get<std::string>();    
   rtl_wrapper << indent << "class RTLVerilated {" << std::endl;
