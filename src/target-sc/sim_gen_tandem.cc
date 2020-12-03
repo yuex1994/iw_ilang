@@ -329,7 +329,7 @@ void IlaSim::create_v_start_condition(std::stringstream& rtl_wrapper, std::strin
     rtl_wrapper << indent << "bool cond = true;" << std::endl;; 
     for (const auto& item : start_condition.items()) {
       rtl_wrapper << indent << "cond = cond && (" << 
-      "v->v_top->" << boost::replace_all_copy(item.key().get<std::string>(), ".", "->") << " == " << item.value << ")" << std::endl;
+      "v->v_top->" << boost::replace_all_copy(item.key(), ".", "->") << " == " << item.value() << ")" << std::endl;
     }
     rtl_wrapper << indent << "return cond;" << std::endl;
   }
