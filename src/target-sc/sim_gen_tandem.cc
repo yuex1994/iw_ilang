@@ -143,6 +143,8 @@ void IlaSim::create_tandem_check_s2() {
   tandem_check << indent << "#include \"" << model_ptr_->name().str() << ".h\""
                << std::endl;
   create_check_state(tandem_check, indent);
+  create_check_instr_header();
+  create_check_instr(tandem_check, indent);
   outFile << tandem_check.rdbuf();
   outFile.close();  
 }
