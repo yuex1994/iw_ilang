@@ -322,8 +322,8 @@ void IlaSim::create_v_start_condition(std::stringstream& rtl_wrapper, std::strin
   rtl_wrapper << indent << "bool start_condition(v_in t_v) {" << std::endl;
   increase_indent(indent);
 
-  if (rtl_map.contains("start condition")) {
-    rtl_wrapper << "return true;" << std::endl;
+  if (!rtl_map.contains("start condition")) {
+    rtl_wrapper << indent << "return true;" << std::endl;
   } else {
     auto start_condition = rtl_map["strat condition"];
     rtl_wrapper << indent << "bool cond = true;" << std::endl;; 
@@ -343,7 +343,7 @@ void IlaSim::create_v_input(std::stringstream& rtl_wrapper, std::string& indent)
   auto rtl_inputs = rtl_map["verilog inputs"];
   rtl_wrapper << indent << "void v_input(v_in t_v) {" << std::endl;
   increase_indent(indent);
-  rtl_wrapper << indent << "if (start_condition(t_v) {" << std::endl;
+  rtl_wrapper << indent << "if (start_condition(t_v)) {" << std::endl;
   increase_indent(indent);
   for (const auto& item : rtl_inputs.items()) {
     rtl_wrapper << indent << "v_top->" << item.key() << " = t_v." << item.key() << ";" << std::endl;
