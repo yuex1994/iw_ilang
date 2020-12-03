@@ -170,11 +170,11 @@ void IlaSim::create_ila_wrapper() {
 }
 
 void IlaSim::create_ilated_class_header(std::stringstream& ila_wrapper, std::string& indent) {
+  ila_wrapper << indent << "#include<" << model_ptr_->name().str() << ".h>" << std::endl;
   create_i_in(ila_wrapper, indent);
   ila_wrapper << indent << "class v_in;" << std::endl;
-  ila_wrapper << indent << "i_in input_v_to_i(v_in& test_v) {" << std::endl;
+  ila_wrapper << indent << "i_in input_v_to_i(v_in& test_v);" << std::endl;
   ila_wrapper << indent << "class RTLVerilated;" << std::endl;
-  ila_wrapper << indent << "class " << model_ptr_->name().str() << std::endl;
   ila_wrapper << indent << "class Ilated {" << std::endl;
   ila_wrapper << indent << "public:" << std::endl;
   increase_indent(indent);
@@ -189,9 +189,7 @@ void IlaSim::create_ilated_class_header(std::stringstream& ila_wrapper, std::str
 }
 
 void IlaSim::create_ilated_class(std::stringstream& ila_wrapper, std::string& indent) {
-  ila_wrapper << indent << "#include \"" << model_ptr_->name().str() << ".h\"" << std::endl;
   ila_wrapper << indent << "#include \"" << model_ptr_->name().str() << "_ila.h\"" << std::endl;
-  ila_wrapper << indent << "#include \"" << model_ptr_->name().str() << "_rtl.h\"" << std::endl;
   // create_i_in(ila_wrapper, indent);
   create_input_v_to_i(ila_wrapper, indent);  
   ila_wrapper << indent << "Ilated::Ilated() {" << std::endl;
@@ -316,7 +314,6 @@ void IlaSim::create_rtl_wrapper_s2() {
   outFile_src.open(export_dir_ + model_ptr_->name().str() + "_rtl.cc");
   std::stringstream rtl_wrapper_src;
   rtl_wrapper_src << "#include \"" << model_ptr_->name().str() << "_ila.h\"" << std::endl;  
-  rtl_wrapper_src << "#include \"" << model_ptr_->name().str() << "_rtl.h\"" << std::endl << std::endl;
   create_instr_monitor_class(rtl_wrapper_src, indent);
   create_instr_monitor_instance(rtl_wrapper_src, indent);  
   create_verilated_class_s2(rtl_wrapper_src, indent);
@@ -383,7 +380,7 @@ void IlaSim::create_instr_monitor_class(std::stringstream& rtl_wrapper, std::str
     } else {
       rtl_wrapper << indent << "bool cond = true;" << std::endl;
       for (const auto& cond: item["finish condition"].items()) {
-        rtl_wrapper << indent << "cond = cond && (v->v_top->" << boost::replace_all_copy(cond.key(), ".", "->") << " == " << cond.value() << ");" << std::endl;
+        rtl_wrapper << indent << "cond = cond && (v_top->" << boost::replace_all_copy(cond.key(), ".", "->") << " == " << cond.value() << ");" << std::endl;
       }
       rtl_wrapper << indent << "return cond;" << std::endl;
     }
@@ -427,6 +424,11 @@ void IlaSim::create_instr_monitor_instance(std::stringstream& rtl_wrapper, std::
     check_decode_stream << indent << "}" << std::endl;
   }
   rtl_wrapper << header_.str() << std::endl;
+  rtl_wrapper << indent << "auto t_i = input_v_to_i(t_v);" << std::endl;
+  for (int i = 0; i < model_ptr_->input_num(); i++) {
+    auto input = model_ptr_->input(i);
+    rtl_wrapper << indent << "auto " << model_ptr_->name().str() << input->name().str() << " = t_i." << model_ptr_->name().str() << "_" << input->name().str() << ";" << std::endl;
+  }
   rtl_wrapper << check_decode_stream.str() << std::endl;
   header_indent_ = cached_header_indent_;
   header_.swap(cached_header_);
