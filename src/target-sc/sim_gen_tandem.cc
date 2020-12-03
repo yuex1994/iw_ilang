@@ -267,10 +267,51 @@ void IlaSim::create_rtl_wrapper_s2() {
   outFile.close();    
 }
 
-// void IlaSim::create_instr_monitor() {
-//   // For simplicity, consider start condition is just decode function.
-  
-// }
+void IlaSim::create_instr_monitor_class(std::stringstream& rtl_wrapper, std::string& indent) {
+  rtl_wrapper << indent << "class InstrMonitor {" << std::endl;
+  rtl_wrapper << indent << "public:" << std::endl;
+  increase_indent(indent);
+  rtl_wrapper << indent << "virtual bool is_finish(RTLVerilated*);" << std::endl;
+  decrease_indent(indent);
+  rtl_wrapper << indent << "};" << std::endl; 
+  rtl_wrapper << std::endl;
+  auto ref_var_map = load_json(tandem_rtl_);
+  auto instr_map = ref_var_map["instructions"].get(std::vector<nlohmann::json>);
+  for (auto item: instr_map) {
+    auto instr_name = item["instruction"].get<std::string>();
+    rtl_wrapper << indent << "class InstrMonitor" << instr_name << "{" std::endl;
+    rtl_wrapper << indent << "public:" << std::endl;
+    increase_indent(indent);
+    rtl_wrapper << indent << "uint32_t cycle_left;" << std::endl;
+    rtl_wrapper << indent << "InstrMonitor" << instr_name << "() {" << std::endl;
+    increase_indent(indent);
+    if (item.contains("ready bound")) {
+      rtl_wrapper << indent << "cycle_left = " << item["ready bound"] << ";" << std::endl;
+    }
+    else {
+      rtl_wrapper << indent << "cycle_left = -1;" << std::endl; 
+    } 
+    decrease_indent(indent);
+    rtl_wrapper << indent << "}" << std::endl;
+    rtl_wrapper << indent << "bool is_finish(RTLVerilated*) {" << std::endl;
+    increase_indent(indent);
+    if (item.contains("ready bound")) {
+      rtl_wrapper << indent << "cycle_left = (cycle_left > 0) ? cycle_left - 1 : cycle_left;" << std::endl;
+      rtl_wrapper << indent << "return (cycle_left == 0);" << std::endl;
+    } else {
+      rtl_wrapper << indent << "bool cond = true;" << std::endl;
+      for (auto cond: item["finish condition"]) {
+        rtl_wrapper << indent << "cond = cond && (v->v_top->" << boost::replace_all_copy(cond.key(), ".", "->") << " == " << cond.value() << ");" << std::endl;
+      }
+      rtl_wrapper << indent << "return cond;" << std::endl;
+    }
+    decrease_indent(indent);
+    rtl_wrapper << indent << "}" << std::endl;
+    decrease_indent(indent);
+    rtl_wrapper << indent << "};" << std::endl;
+  }
+
+}
 
 void IlaSim::create_verilated_class(std::stringstream& rtl_wrapper, std::string& indent) {
   auto rtl_map = load_json(tandem_rtl_);

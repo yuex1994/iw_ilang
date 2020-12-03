@@ -89,8 +89,8 @@ void IlaSim::sim_gen_tandem_s1() {
 
 void IlaSim::sim_gen_tandem_s2() {
   create_tandem_check_s2();
+  create_ila_wrapper();  
   create_rtl_wrapper_s2();
-
   create_tandem_constructor();
 }
 
