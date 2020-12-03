@@ -161,7 +161,7 @@ void IlaSim::create_ila_wrapper() {
   outFile_src.open(export_dir_ + model_ptr_->name().str() + "_ila.cc");
   std::stringstream ila_wrapper_src;
   ila_wrapper_src.str("");
-  std::string indent = "";  
+  indent = "";  
   create_ilated_class(ila_wrapper_src, indent);
   outFile_src << ila_wrapper_src.rdbuf();
   outFile_src.close();  
