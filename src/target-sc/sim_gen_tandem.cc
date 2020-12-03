@@ -272,6 +272,7 @@ void IlaSim::create_rtl_wrapper_s2() {
   std::stringstream rtl_wrapper;
   rtl_wrapper.str("");
   std::string indent = "";  
+  rtl_wrapper << indent << "#include <list>" << std::endl;
   auto rtl_map = load_json(tandem_rtl_);
   auto includes = rtl_map["verilator_include"];
   for (nlohmann::json::iterator it = includes.begin(); it != includes.end(); ++it) 
