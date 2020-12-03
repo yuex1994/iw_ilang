@@ -429,8 +429,6 @@ void IlaSim::create_instr_monitor_instance(std::stringstream& rtl_wrapper, std::
     decrease_indent(indent);
     check_decode_stream << indent << "}" << std::endl;
   }
-  decrease_indent(indent);
-  check_decode_stream << indent << "}" << std::endl;
   rtl_wrapper << header_.str() << std::endl;
   rtl_wrapper << check_decode_stream.str() << std::endl;
   header_indent_ = cached_header_indent_;
