@@ -327,6 +327,7 @@ void IlaSim::create_instr_monitor_class_header(std::stringstream& rtl_wrapper, s
   increase_indent(indent);
   rtl_wrapper << indent << "virtual void pass_cycle();" << std::endl;
   rtl_wrapper << indent << "virtual bool is_finish(RTLVerilated* v);" << std::endl;
+  rtl_wrapper << indent << "v_in t_v_;" << std::endl;  
   decrease_indent(indent);
   rtl_wrapper << indent << "};" << std::endl; 
   rtl_wrapper << std::endl;
@@ -338,7 +339,6 @@ void IlaSim::create_instr_monitor_class_header(std::stringstream& rtl_wrapper, s
     rtl_wrapper << indent << "public:" << std::endl;
     increase_indent(indent);
     rtl_wrapper << indent << "uint32_t cycle_left;" << std::endl;
-    rtl_wrapper << indent << "v_in t_v_;" << std::endl;
     rtl_wrapper << indent << "InstrMonitor" << instr_name << "(v_in t_v);" << std::endl; 
     rtl_wrapper << indent << "bool pass_cycle();" << std::endl;
 
@@ -427,7 +427,7 @@ void IlaSim::create_instr_monitor_instance(std::stringstream& rtl_wrapper, std::
   rtl_wrapper << indent << "auto t_i = input_v_to_i(t_v);" << std::endl;
   for (int i = 0; i < model_ptr_->input_num(); i++) {
     auto input = model_ptr_->input(i);
-    rtl_wrapper << indent << "auto " << model_ptr_->name().str() << input->name().str() << " = t_i." << model_ptr_->name().str() << "_" << input->name().str() << ";" << std::endl;
+    rtl_wrapper << indent << "auto " << model_ptr_->name().str() << "_" << input->name().str() << " = t_i." << model_ptr_->name().str() << "_" << input->name().str() << ";" << std::endl;
   }
   rtl_wrapper << check_decode_stream.str() << std::endl;
   header_indent_ = cached_header_indent_;
