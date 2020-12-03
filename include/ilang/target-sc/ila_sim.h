@@ -82,7 +82,7 @@ private:
   void create_input_v_to_i(std::stringstream& ila_wrapper, std::string& indent);
   void create_rtl_wrapper();
   void create_rtl_wrapper_s2(); 
-  void create_instr_monitor(); 
+  void create_instr_monitor_class(std::stringstream& rtl_wrapper, std::string& indent); 
   void create_verilated_class(std::stringstream& rtl_wrapper, std::string& indent);
   void create_v_in(std::stringstream& rtl_wrapper, std::string& indent);
   void create_v_input(std::stringstream& rtl_wrapper, std::string& indent);
