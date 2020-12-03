@@ -325,7 +325,7 @@ void IlaSim::create_instr_monitor_class_header(std::stringstream& rtl_wrapper, s
   rtl_wrapper << indent << "class InstrMonitor {" << std::endl;
   rtl_wrapper << indent << "public:" << std::endl;
   increase_indent(indent);
-  rtl_wrapper << indent << "virtual void pass_cycle(RTLVerilated*);" << std::endl;
+  rtl_wrapper << indent << "virtual void pass_cycle();" << std::endl;
   rtl_wrapper << indent << "virtual bool is_finish(RTLVerilated*);" << std::endl;
   decrease_indent(indent);
   rtl_wrapper << indent << "};" << std::endl; 
@@ -497,8 +497,6 @@ void IlaSim::create_verilated_class_s2(std::stringstream& rtl_wrapper, std::stri
   decrease_indent(indent);
   rtl_wrapper << indent << "}" << std::endl;
   create_rtl_next_cycle_s2(rtl_wrapper, indent);
-  decrease_indent(indent);
-  rtl_wrapper << indent << "};" << std::endl;  
 }
 
 void IlaSim::create_v_in(std::stringstream& rtl_wrapper, std::string& indent) {
@@ -607,9 +605,8 @@ void IlaSim::create_rtl_next_cycle_s2(std::stringstream& rtl_wrapper, std::strin
   rtl_wrapper << indent << "  return;" << std::endl;
   decrease_indent(indent);
   rtl_wrapper << indent << "if (i_m_list.front()->is_finish(this)) {" << std::endl;
-    increase_indent(indent);
   increase_indent(indent);
-  rtl_wrapper << indent << "v_in t_v = i_m_list.front().t_v_;" << std::endl;
+  rtl_wrapper << indent << "v_in t_v = i_m_list.front()->t_v_;" << std::endl;
   rtl_wrapper << indent << "i_m_list.pop_front();" << std::endl;
   rtl_wrapper << indent << "i->v_input(t_v);" << std::endl;
   rtl_wrapper << indent << "i->next_instr(this);" << std::endl;
