@@ -325,7 +325,7 @@ void IlaSim::create_v_start_condition(std::stringstream& rtl_wrapper, std::strin
   if (!rtl_map.contains("start condition")) {
     rtl_wrapper << indent << "return true;" << std::endl;
   } else {
-    auto start_condition = rtl_map["strat condition"];
+    auto start_condition = rtl_map["start condition"];
     rtl_wrapper << indent << "bool cond = true;" << std::endl;; 
     for (const auto& item : start_condition.items()) {
       rtl_wrapper << indent << "cond = cond && (" << 
