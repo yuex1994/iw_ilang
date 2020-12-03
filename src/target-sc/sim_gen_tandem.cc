@@ -343,9 +343,13 @@ void IlaSim::create_v_input(std::stringstream& rtl_wrapper, std::string& indent)
   auto rtl_inputs = rtl_map["verilog inputs"];
   rtl_wrapper << indent << "void v_input(v_in t_v) {" << std::endl;
   increase_indent(indent);
+  rtl_wrapper << indent << "if (start_condition(t_v) {" << std::endl;
+  increase_indent(indent);
   for (const auto& item : rtl_inputs.items()) {
     rtl_wrapper << indent << "v_top->" << item.key() << " = t_v." << item.key() << ";" << std::endl;
   }
+  decrease_indent(indent);
+  rtl_wrapper << indent << "}" << std::endl;
   decrease_indent(indent);
   rtl_wrapper << indent << "}" << std::endl; 
 }
