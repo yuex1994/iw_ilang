@@ -222,7 +222,7 @@ void IlaSim::create_i_in(std::stringstream& ila_wrapper, std::string& indent) {
 }
 
 void IlaSim::create_i_input(std::stringstream& ila_wrapper, std::string& indent) {
-  ila_wrapper << indent << "void i_input(i_in t_i) {" << std::endl;
+  ila_wrapper << indent << "void Ilated::i_input(i_in t_i) {" << std::endl;
   increase_indent(indent);
   for (int i = 0; i < model_ptr_->input_num(); i++) {
     auto input = model_ptr_->input(i);
@@ -230,7 +230,7 @@ void IlaSim::create_i_input(std::stringstream& ila_wrapper, std::string& indent)
   }
   decrease_indent(indent);
   ila_wrapper << indent << "}" << std::endl << std::endl;
-  ila_wrapper << indent << "void v_input(v_in t_v) {" << std::endl;
+  ila_wrapper << indent << "void Ilated::v_input(v_in t_v) {" << std::endl;
   increase_indent(indent);
   ila_wrapper << indent << "i_in t_i = input_v_to_i(t_v);" << std::endl;
   ila_wrapper << indent << "i_input(t_i);" << std::endl;
@@ -326,7 +326,7 @@ void IlaSim::create_instr_monitor_class_header(std::stringstream& rtl_wrapper, s
   rtl_wrapper << indent << "public:" << std::endl;
   increase_indent(indent);
   rtl_wrapper << indent << "virtual void pass_cycle();" << std::endl;
-  rtl_wrapper << indent << "virtual bool is_finish(RTLVerilated*);" << std::endl;
+  rtl_wrapper << indent << "virtual bool is_finish(RTLVerilated* v);" << std::endl;
   decrease_indent(indent);
   rtl_wrapper << indent << "};" << std::endl; 
   rtl_wrapper << std::endl;
@@ -342,7 +342,7 @@ void IlaSim::create_instr_monitor_class_header(std::stringstream& rtl_wrapper, s
     rtl_wrapper << indent << "InstrMonitor" << instr_name << "(v_in t_v);" << std::endl; 
     rtl_wrapper << indent << "bool pass_cycle();" << std::endl;
 
-    rtl_wrapper << indent << "bool is_finish(RTLVerilated*);" << std::endl;
+    rtl_wrapper << indent << "bool is_finish(RTLVerilated* v);" << std::endl;
     decrease_indent(indent);
     rtl_wrapper << indent << "};" << std::endl << std::endl;
   }
@@ -373,14 +373,14 @@ void IlaSim::create_instr_monitor_class(std::stringstream& rtl_wrapper, std::str
     decrease_indent(indent);
     rtl_wrapper << indent << "}" << std::endl << std::endl;
 
-    rtl_wrapper << indent << "bool InstrMonitor" << instr_name << "::is_finish(RTLVerilated*) {" << std::endl;
+    rtl_wrapper << indent << "bool InstrMonitor" << instr_name << "::is_finish(RTLVerilated* v) {" << std::endl;
     increase_indent(indent);
     if (item.contains("ready bound")) {
       rtl_wrapper << indent << "return (cycle_left == 0);" << std::endl;
     } else {
       rtl_wrapper << indent << "bool cond = true;" << std::endl;
       for (const auto& cond: item["finish condition"].items()) {
-        rtl_wrapper << indent << "cond = cond && (v_top->" << boost::replace_all_copy(cond.key(), ".", "->") << " == " << cond.value() << ");" << std::endl;
+        rtl_wrapper << indent << "cond = cond && (v->v_top->" << boost::replace_all_copy(cond.key(), ".", "->") << " == " << cond.value() << ");" << std::endl;
       }
       rtl_wrapper << indent << "return cond;" << std::endl;
     }
@@ -443,7 +443,7 @@ void IlaSim::create_verilated_class(std::stringstream& rtl_wrapper, std::string&
   rtl_wrapper << indent << "class RTLVerilated {" << std::endl;
   rtl_wrapper << indent << "public:" << std::endl;
   increase_indent(indent);
-  rtl_wrapper << indent << "V" << rtl_name << "*v_top;" << std::endl;
+  rtl_wrapper << indent << "V" << rtl_name << "* v_top;" << std::endl;
   rtl_wrapper << indent << "RTLVerilated() {" << std::endl;
   increase_indent(indent);
   rtl_wrapper << indent << "v_top = new V" << rtl_name << "(\"v_top\");" << std::endl;
