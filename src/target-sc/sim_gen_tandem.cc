@@ -192,24 +192,18 @@ void IlaSim::create_ilated_class(std::stringstream& ila_wrapper, std::string& in
   ila_wrapper << indent << "#include \"" << model_ptr_->name().str() << "_rtl.h\"" << std::endl;
   // create_i_in(ila_wrapper, indent);
   create_input_v_to_i(ila_wrapper, indent);  
-  ila_wrapper << indent << "class Ilated {" << std::endl;
-  ila_wrapper << indent << "public:" << std::endl;
-  increase_indent(indent);
-  ila_wrapper << indent << "Ilated() {" << std::endl;
+  ila_wrapper << indent << "Ilated::Ilated() {" << std::endl;
   increase_indent(indent);
   ila_wrapper << indent << "i_top = new " << model_ptr_->name().str() << "();" << std::endl;
   decrease_indent(indent);
   ila_wrapper << indent << "}" << std::endl;
   create_i_input(ila_wrapper, indent);
-  ila_wrapper << indent << "~Ilated() {" << std::endl;
+  ila_wrapper << indent << "Ilated::~Ilated() {" << std::endl;
   increase_indent(indent);
   ila_wrapper << indent << "delete i_top;" << std::endl;
   decrease_indent(indent);
   ila_wrapper << indent << "}" << std::endl;
   create_ila_next_instr(ila_wrapper, indent);
-  ila_wrapper << indent << model_ptr_->name().str() << "* i_top;" << std::endl;
-  decrease_indent(indent);
-  ila_wrapper << indent << "};" << std::endl;
 }
 
 void IlaSim::create_i_in(std::stringstream& ila_wrapper, std::string& indent) {
@@ -273,7 +267,7 @@ void IlaSim::create_input_v_to_i(std::stringstream& ila_wrapper, std::string& in
 }
 
 void IlaSim::create_ila_next_instr(std::stringstream& ila_wrapper, std::string& indent) {
-  ila_wrapper << indent << "void next_instr(RTLVerilated* v) {" << std::endl;
+  ila_wrapper << indent << "void Ilated::next_instr(RTLVerilated* v) {" << std::endl;
   increase_indent(indent);
   ila_wrapper << indent << "i_top->compute(v);" << std::endl;
   decrease_indent(indent);
