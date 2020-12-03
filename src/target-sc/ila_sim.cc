@@ -262,7 +262,7 @@ void IlaSim::sim_gen_execute_kernel() {
   decrease_indent(indent);
   if (tandem_scenario_ > 1) 
     execute_tandem(execute_kernel, indent);
-  // execute_kernel << indent << "};" << std::endl;
+  execute_kernel << indent << "};" << std::endl;
   execute_kernel_export(execute_kernel);
   execute_kernel_mk_file();
   execute_kernel_header();
