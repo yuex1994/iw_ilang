@@ -148,19 +148,49 @@ void IlaSim::create_tandem_check_s2() {
 }
 
 void IlaSim::create_ila_wrapper() {
-  std::ofstream outFile;
-  outFile.open(export_dir_ + model_ptr_->name().str() + "_ila.h");
-  std::stringstream ila_wrapper;
-  ila_wrapper.str("");
+  std::ofstream outFile_header;
+  outFile_header.open(export_dir_ + model_ptr_->name().str() + "_ila.h");
+  std::stringstream ila_wrapper_header;
+  ila_wrapper_header.str("");
   std::string indent = "";  
-  create_ilated_class(ila_wrapper, indent);
-  outFile << ila_wrapper.rdbuf();
-  outFile.close();  
+  create_ilated_class_header(ila_wrapper_header, indent);
+  outFile_header << ila_wrapper_header.rdbuf();
+  outFile_header.close();
+
+  std::ofstream outFile_src;
+  outFile_src.open(export_dir_ + model_ptr_->name().str() + "_ila.cc");
+  std::stringstream ila_wrapper_src;
+  ila_wrapper_src.str("");
+  std::string indent = "";  
+  create_ilated_class(ila_wrapper_src, indent);
+  outFile_src << ila_wrapper_src.rdbuf();
+  outFile_src.close();  
+}
+
+void IlaSim::create_ilated_class_header(std::stringstream& ila_wrapper, std::string& indent) {
+  create_i_in(ila_wrapper, indent);
+  ila_wrapper << indent << "class v_in;" << std::endl;
+  ila_wrapper << indent << "i_in input_v_to_i(v_in& test_v) {" << std::endl;
+  ila_wrapper << indent << "class RTLVerilated;" << std::endl;
+  ila_wrapper << indent << "class " << model_ptr_->name().str() << std::endl;
+  ila_wrapper << indent << "class Ilated {" << std::endl;
+  ila_wrapper << indent << "public:" << std::endl;
+  increase_indent(indent);
+  ila_wrapper << indent << "Ilated();" << std::endl;
+  ila_wrapper << indent << "void i_input(i_in t_i);" << std::endl;
+  ila_wrapper << indent << "void v_input(v_in t_v);" << std::endl;
+  ila_wrapper << indent << "~Ilated();" << std::endl;
+  ila_wrapper << indent << "void next_instr(RTLVerilated* v);" << std::endl;
+  ila_wrapper << indent << model_ptr_->name().str() << "* i_top;" << std::endl;
+  decrease_indent(indent);
+  ila_wrapper << indent << "};" << std::endl;
 }
 
 void IlaSim::create_ilated_class(std::stringstream& ila_wrapper, std::string& indent) {
   ila_wrapper << indent << "#include \"" << model_ptr_->name().str() << ".h\"" << std::endl;
-  create_i_in(ila_wrapper, indent);
+  ila_wrapper << indent << "#include \"" << model_ptr_->name().str() << "_ila.h\"" << std::endl;
+  ila_wrapper << indent << "#include \"" << model_ptr_->name().str() << "_rtl.h\"" << std::endl;
+  // create_i_in(ila_wrapper, indent);
   create_input_v_to_i(ila_wrapper, indent);  
   ila_wrapper << indent << "class Ilated {" << std::endl;
   ila_wrapper << indent << "public:" << std::endl;
@@ -278,12 +308,49 @@ void IlaSim::create_rtl_wrapper_s2() {
   for (nlohmann::json::iterator it = includes.begin(); it != includes.end(); ++it) 
     rtl_wrapper << indent << "#include <V" << it->get<std::string>() << ".h>" << std::endl;  
   rtl_wrapper << indent << "class Ilated;" << std::endl;    
+  rtl_wrapper << indent << "class RTLVerilated;" << std::endl;    
   create_v_in(rtl_wrapper, indent);    
-  create_instr_monitor_class(rtl_wrapper, indent);
-  create_instr_monitor_instance(rtl_wrapper, indent);  
-  create_verilated_class_s2(rtl_wrapper, indent);
+  create_instr_monitor_class_header(rtl_wrapper, indent);
+  rtl_wrapper << indent << "InstrMonitor* gen_monitor(v_in& t_v);" << std::endl;
+  create_verilated_class_header_s2(rtl_wrapper, indent);
   outFile << rtl_wrapper.rdbuf();
   outFile.close();    
+
+  outFile_src.open(export_dir_ + model_ptr_->name().str() + "_rtl.cc");
+  stringstream rtl_wrapper_src;
+  rtl_wrapper_src << "#include \"" << model_ptr_->name().str() << "_ila.h\"" << std::endl;  
+  rtl_wrapper_src << "#include \"" << model_ptr_->name().str() << "_rtl.h\"" << std::endl << std::endl;
+  create_instr_monitor_class(rtl_wrapper_src, indent);
+  create_instr_monitor_instance(rtl_wrapper_src, indent);  
+  outFile_src << rtl_wrapper_src.rdbuf();
+  outFile_src.close();
+}
+
+void IlaSim::create_instr_monitor_class_header(std::stringstream& rtl_wrapper, std::string& indent) {
+  rtl_wrapper << indent << "class InstrMonitor {" << std::endl;
+  rtl_wrapper << indent << "public:" << std::endl;
+  increase_indent(indent);
+  rtl_wrapper << indent << "virtual void pass_cycle(RTLVerilated*);" << std::endl;
+  rtl_wrapper << indent << "virtual bool is_finish(RTLVerilated*);" << std::endl;
+  decrease_indent(indent);
+  rtl_wrapper << indent << "};" << std::endl; 
+  rtl_wrapper << std::endl;
+  auto ref_var_map = load_json(tandem_rtl_);
+  auto instr_map = ref_var_map["instructions"].get<std::vector<nlohmann::json>>();
+  for (auto item: instr_map) {
+    auto instr_name = item["instruction"].get<std::string>();
+    rtl_wrapper << indent << "class InstrMonitor" << instr_name << " : public InstrMonitor {" << std::endl;
+    rtl_wrapper << indent << "public:" << std::endl;
+    increase_indent(indent);
+    rtl_wrapper << indent << "uint32_t cycle_left;" << std::endl;
+    rtl_wrapper << indent << "v_in t_v_;" << std::endl;
+    rtl_wrapper << indent << "InstrMonitor" << instr_name << "(v_in t_v);" << std::endl; 
+    rtl_wrapper << indent << "bool pass_cycle();" << std::endl;
+
+    rtl_wrapper << indent << "bool is_finish(RTLVerilated*);" << std::endl;
+    decrease_indent(indent);
+    rtl_wrapper << indent << "};" << std::endl << std::endl;
+  }
 }
 
 void IlaSim::create_instr_monitor_class(std::stringstream& rtl_wrapper, std::string& indent) {
@@ -406,6 +473,24 @@ void IlaSim::create_verilated_class(std::stringstream& rtl_wrapper, std::string&
   create_rtl_next_cycle(rtl_wrapper, indent);
   decrease_indent(indent);
   rtl_wrapper << indent << "};" << std::endl;  
+}
+
+void create_verilated_class_header_s2(std::stringstream& rtl_wrapper, std::string& indent) {
+  auto rtl_map = load_json(tandem_rtl_);
+  auto rtl_name = rtl_map["VERILOG"].get<std::string>();    
+  rtl_wrapper << indent << "class RTLVerilated {" << std::endl;
+  rtl_wrapper << indent << "public:" << std::endl;
+  increase_indent(indent);
+  rtl_wrapper << indent << "V" << rtl_name << "*v_top;" << std::endl;
+  rtl_wrapper << indent << "Ilated* i;" << std::endl;
+  rtl_wrapper << indent << "std::list<InstrMonitor*> i_m_list;" << std::endl;
+  rtl_wrapper << indent << "RTLVerilated(Ilated* ilated);" << std::endl;
+  rtl_wrapper << indent << "bool start_condition(v_in t_v);" << std::endl;  
+  rtl_wrapper << indent << "void v_input(v_in t_v);" << std::endl;
+  rtl_wrapper << indent << " ~RTLVerilated();" << std::endl;
+  rtl_wrapper << indent << "void next_cycle();" << std::endl;
+  decrease_indent(indent);
+  rtl_wrapper << indent << "};" << std::endl;    
 }
 
 void IlaSim::create_verilated_class_s2(std::stringstream& rtl_wrapper, std::string& indent) {

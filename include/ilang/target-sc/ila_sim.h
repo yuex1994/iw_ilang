@@ -77,15 +77,18 @@ private:
   void create_tandem_check_s2();
   void create_ila_wrapper();
   void create_ilated_class(std::stringstream& ila_wrapper, std::string& indent);
+  void create_ilated_class_header(std::stringstream& ila_wrapper, std::string& indent);
   void create_i_in(std::stringstream& ila_wrapper, std::string& indent);
   void create_i_input(std::stringstream& ila_wrapper, std::string& indent);  
   void create_input_v_to_i(std::stringstream& ila_wrapper, std::string& indent);
   void create_rtl_wrapper();
   void create_rtl_wrapper_s2(); 
   void create_instr_monitor_class(std::stringstream& rtl_wrapper, std::string& indent); 
+  void create_instr_monitor_class_header(std::stringstream& rtl_wrapper, std::string& indent); 
   void create_instr_monitor_instance(std::stringstream& rtl_wrapper, std::string& indent);
   void create_verilated_class(std::stringstream& rtl_wrapper, std::string& indent);
   void create_verilated_class_s2(std::stringstream& rtl_wrapper, std::string& indent);
+  void create_verilated_class_header_s2(std::stringstream& rtl_wrapper, std::string& indent);
   void create_v_in(std::stringstream& rtl_wrapper, std::string& indent);
   void create_v_input(std::stringstream& rtl_wrapper, std::string& indent);
   void create_v_input_s2(std::stringstream& rtl_wrapper, std::string& indent);
