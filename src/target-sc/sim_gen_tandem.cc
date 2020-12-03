@@ -323,6 +323,7 @@ void IlaSim::create_rtl_wrapper_s2() {
   rtl_wrapper_src << "#include \"" << model_ptr_->name().str() << "_rtl.h\"" << std::endl << std::endl;
   create_instr_monitor_class(rtl_wrapper_src, indent);
   create_instr_monitor_instance(rtl_wrapper_src, indent);  
+  create_verilated_class_s2(rtl_wrapper, indent);
   outFile_src << rtl_wrapper_src.rdbuf();
   outFile_src.close();
 }
