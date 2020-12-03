@@ -291,7 +291,6 @@ void IlaSim::create_instr_monitor_class(std::stringstream& rtl_wrapper, std::str
   increase_indent(indent);
   rtl_wrapper << indent << "virtual void pass_cycle(RTLVerilated*);" << std::endl;
   rtl_wrapper << indent << "virtual bool is_finish(RTLVerilated*);" << std::endl;
-    increase_indent(indent);
   decrease_indent(indent);
   rtl_wrapper << indent << "};" << std::endl; 
   rtl_wrapper << std::endl;
