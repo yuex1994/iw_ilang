@@ -340,7 +340,7 @@ void IlaSim::create_instr_monitor_class_header(std::stringstream& rtl_wrapper, s
     increase_indent(indent);
     rtl_wrapper << indent << "uint32_t cycle_left;" << std::endl;
     rtl_wrapper << indent << "InstrMonitor" << instr_name << "(v_in t_v);" << std::endl; 
-    rtl_wrapper << indent << "bool pass_cycle();" << std::endl;
+    rtl_wrapper << indent << "void pass_cycle();" << std::endl;
 
     rtl_wrapper << indent << "bool is_finish(RTLVerilated* v);" << std::endl;
     decrease_indent(indent);
@@ -365,7 +365,7 @@ void IlaSim::create_instr_monitor_class(std::stringstream& rtl_wrapper, std::str
     decrease_indent(indent);
     rtl_wrapper << indent << "}" << std::endl;
 
-    rtl_wrapper << indent << "bool InstrMonitor" << instr_name << "::pass_cycle() {" << std::endl;
+    rtl_wrapper << indent << "void InstrMonitor" << instr_name << "::pass_cycle() {" << std::endl;
     increase_indent(indent);
     if (item.contains("ready bound")) {
       rtl_wrapper << indent << "cycle_left = (cycle_left > 0) ? cycle_left - 1 : cycle_left;" << std::endl;    
