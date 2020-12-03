@@ -88,6 +88,7 @@ private:
   void create_verilated_class_s2(std::stringstream& rtl_wrapper, std::string& indent);
   void create_v_in(std::stringstream& rtl_wrapper, std::string& indent);
   void create_v_input(std::stringstream& rtl_wrapper, std::string& indent);
+  void create_v_input_s2(std::stringstream& rtl_wrapper, std::string& indent);
   void create_v_start_condition(std::stringstream& rtl_wrapper, std::string& indent);
 
 
@@ -192,6 +193,7 @@ private:
   void create_default_constructor();
   void create_tandem_constructor();
   void create_rtl_next_cycle(std::stringstream& rtl_wrapper, std::string& indent);
+  void create_rtl_next_cycle_s2(std::stringstream& rtl_wrapper, std::string& indent);
   void create_ila_next_instr(std::stringstream& ila_wrapper, std::string& indent);
 
   void execute_tandem(std::stringstream& execute_kernel, std::string& indent);

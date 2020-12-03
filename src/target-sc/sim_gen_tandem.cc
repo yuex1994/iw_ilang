@@ -198,14 +198,20 @@ void IlaSim::create_i_in(std::stringstream& ila_wrapper, std::string& indent) {
 }
 
 void IlaSim::create_i_input(std::stringstream& ila_wrapper, std::string& indent) {
-  ila_wrapper << indent << "void i_input (i_in t_i) {" << std::endl;
+  ila_wrapper << indent << "void i_input(i_in t_i) {" << std::endl;
   increase_indent(indent);
   for (int i = 0; i < model_ptr_->input_num(); i++) {
     auto input = model_ptr_->input(i);
     ila_wrapper << indent << "i_top->" << model_ptr_->name().str() << "_" << input->name().str() << " = t_i." << model_ptr_->name().str() << "_" << input->name().str() << ";" << std::endl;
   }
   decrease_indent(indent);
-  ila_wrapper << indent << "}" << std::endl;
+  ila_wrapper << indent << "}" << std::endl << std::endl;
+  ila_wrapper << indent << "void v_input(v_in t_v) {" << std::endl;
+  increase_indent(indent);
+  ila_wrapper << indent << "i_in t_i = input_v_to_i(t_v);" << std::endl;
+  ila_wrapper << indent << "i_input(t_i);" << std::endl;
+  decrease_indent(indent);
+  ila_wrapper << indent << "}" << std::endl << std::endl;
 }
 
 void IlaSim::create_input_v_to_i(std::stringstream& ila_wrapper, std::string& indent) {
@@ -270,6 +276,7 @@ void IlaSim::create_rtl_wrapper_s2() {
   auto includes = rtl_map["verilator_include"];
   for (nlohmann::json::iterator it = includes.begin(); it != includes.end(); ++it) 
     rtl_wrapper << indent << "#include <V" << it->get<std::string>() << ".h>" << std::endl;  
+  rtl_wrapper << indent << "class Ilated;" << std::endl;    
   create_v_in(rtl_wrapper, indent);    
   create_instr_monitor_class(rtl_wrapper, indent);
   create_instr_monitor_instance(rtl_wrapper, indent);  
@@ -294,10 +301,10 @@ void IlaSim::create_instr_monitor_class(std::stringstream& rtl_wrapper, std::str
     rtl_wrapper << indent << "public:" << std::endl;
     increase_indent(indent);
     rtl_wrapper << indent << "uint32_t cycle_left;" << std::endl;
-    rtl_wrapper << indent << "v_in v_in_;" << std::endl;
+    rtl_wrapper << indent << "v_in t_v_;" << std::endl;
     rtl_wrapper << indent << "InstrMonitor" << instr_name << "(v_in t_v) {" << std::endl;
     increase_indent(indent);
-    rtl_wrapper << indent << "v_in_ = t_v;" << std::endl;
+    rtl_wrapper << indent << "t_v_ = t_v;" << std::endl;
     if (item.contains("ready bound")) {
       rtl_wrapper << indent << "cycle_left = " << item["ready bound"] << ";" << std::endl;
     }
@@ -327,6 +334,7 @@ void IlaSim::create_instr_monitor_class(std::stringstream& rtl_wrapper, std::str
 
 void IlaSim::create_instr_monitor_instance(std::stringstream& rtl_wrapper, std::string& indent) {
   rtl_wrapper << indent << "InstrMonitor* gen_monitor(v_in& t_v) {" << std::endl;
+  increase_indent(indent);
   auto ref_var_map = load_json(tandem_rtl_);
   auto instr_map = ref_var_map["instructions"].get<std::vector<nlohmann::json>>();  
   std::set<size_t> cache_declared_id_set_;
@@ -363,6 +371,8 @@ void IlaSim::create_instr_monitor_instance(std::stringstream& rtl_wrapper, std::
   header_indent_ = cached_header_indent_;
   header_.swap(cached_header_);
   declared_id_set_ = cache_declared_id_set_;
+  decrease_indent(indent);
+  rtl_wrapper << "}" << std::endl;
 }
 
 void IlaSim::create_verilated_class(std::stringstream& rtl_wrapper, std::string& indent) {
@@ -379,7 +389,7 @@ void IlaSim::create_verilated_class(std::stringstream& rtl_wrapper, std::string&
   rtl_wrapper << indent << "}" << std::endl;
   create_v_start_condition(rtl_wrapper, indent);
   create_v_input(rtl_wrapper, indent);
-  rtl_wrapper << indent << " ~RTLVerilated() {" << std::endl;
+  rtl_wrapper << indent << "~RTLVerilated() {" << std::endl;
   increase_indent(indent);
   rtl_wrapper << indent << "delete v_top;" << std::endl;
   decrease_indent(indent);
@@ -396,19 +406,21 @@ void IlaSim::create_verilated_class_s2(std::stringstream& rtl_wrapper, std::stri
   rtl_wrapper << indent << "public:" << std::endl;
   increase_indent(indent);
   rtl_wrapper << indent << "V" << rtl_name << "*v_top;" << std::endl;
-  rtl_wrapper << indent << "RTLVerilated() {" << std::endl;
+  rtl_wrapper << indent << "Ilated* i;" << std::endl;
+  rtl_wrapper << indent << "RTLVerilated(Ilated* ilated) {" << std::endl;
   increase_indent(indent);
   rtl_wrapper << indent << "v_top = new V" << rtl_name << "(\"v_top\");" << std::endl;
+  rtl_wrapper << indent << "i = ilated;" << std::endl;
   decrease_indent(indent);
   rtl_wrapper << indent << "}" << std::endl;
   create_v_start_condition(rtl_wrapper, indent);
-  create_v_input(rtl_wrapper, indent);
+  create_v_input_s2(rtl_wrapper, indent);
   rtl_wrapper << indent << " ~RTLVerilated() {" << std::endl;
   increase_indent(indent);
   rtl_wrapper << indent << "delete v_top;" << std::endl;
   decrease_indent(indent);
   rtl_wrapper << indent << "}" << std::endl;
-  create_rtl_next_cycle(rtl_wrapper, indent);
+  create_rtl_next_cycle_s2(rtl_wrapper, indent);
   decrease_indent(indent);
   rtl_wrapper << indent << "};" << std::endl;  
 }
@@ -468,6 +480,24 @@ void IlaSim::create_v_input(std::stringstream& rtl_wrapper, std::string& indent)
   rtl_wrapper << indent << "}" << std::endl; 
 }
 
+void IlaSim::create_v_input_s2(std::stringstream& rtl_wrapper, std::string& indent) {
+  auto rtl_map = load_json(tandem_rtl_);
+  auto rtl_inputs = rtl_map["verilog inputs"];
+  rtl_wrapper << indent << "void v_input(v_in t_v) {" << std::endl;
+  increase_indent(indent);
+  rtl_wrapper << indent << "if (start_condition(t_v)) {" << std::endl;
+  increase_indent(indent);
+  rtl_wrapper << indent << "InstrMonitor* i_m = gen_monitor(t_v);" << std::endl;
+  rtl_wrapper << indent << "i_m_list.push_back(i_m);" << std::endl;
+  for (const auto& item : rtl_inputs.items()) {
+    rtl_wrapper << indent << "v_top->" << item.key() << " = t_v." << item.key() << ";" << std::endl;
+  }
+  decrease_indent(indent);
+  rtl_wrapper << indent << "}" << std::endl;
+  decrease_indent(indent);
+  rtl_wrapper << indent << "}" << std::endl; 
+}
+
 void IlaSim::create_rtl_next_cycle(std::stringstream& rtl_wrapper, std::string& indent) {
   auto rtl_map = load_json(tandem_rtl_);
   std::string clk_signal = rtl_map["verilog clock"].get<std::string>();
@@ -478,6 +508,36 @@ void IlaSim::create_rtl_next_cycle(std::stringstream& rtl_wrapper, std::string& 
   rtl_wrapper << indent << "v_top->eval();" << std::endl;
   rtl_wrapper << indent << "v_top->clk = " << ((clk_edge) ? 1 : 0)<< ";" << std::endl;
   rtl_wrapper << indent << "v_top->eval();" << std::endl;
+  decrease_indent(indent);
+  rtl_wrapper << indent << "}" << std::endl;
+}
+
+void IlaSim::create_rtl_next_cycle_s2(std::stringstream& rtl_wrapper, std::string& indent) {
+  auto rtl_map = load_json(tandem_rtl_);
+  std::string clk_signal = rtl_map["verilog clock"].get<std::string>();
+  bool clk_edge = rtl_map["verilog clock edge"].get<bool>();
+  rtl_wrapper << indent << "void next_cycle() {" << std::endl;
+  increase_indent(indent);
+  rtl_wrapper << indent << "v_top->clk = " << ((clk_edge) ? 0 : 1) << ";" << std::endl;
+  rtl_wrapper << indent << "v_top->eval();" << std::endl;
+  rtl_wrapper << indent << "v_top->clk = " << ((clk_edge) ? 1 : 0)<< ";" << std::endl;
+  rtl_wrapper << indent << "v_top->eval();" << std::endl;
+  rtl_wrapper << indent << "for (auto i_m : i_m_list)" << std::endl;
+  increase_indent(indent);
+  rtl_wrapper << indent << "i_m->pass_cycle();" << std::endl;
+  decrease_indent(indent);
+  rtl_wrapper << indent << "if (i_m_list.size() == 0)" << std:endl;
+  increase_indent(indent);
+  rtl_wrapper << indent << "  return;" << std:endl;
+  decrease_indent(indent);
+  rtl_wrapper << indent << "if (i_m_list.front()->is_finish(this)) {" << std::endl;
+  increase_indent(indent);
+  rtl_wrapper << indent << "v_in t_v = i_m_list.front().t_v_;" << std::endl;
+  rtl_wrapper << indent << "i_m_list.pop_front();" << std::endl;
+  rtl_wrapper << indent << "i->v_input(t_v);" << std::endl;
+  rtl_wrapper << indent << "i->next_instr(v);" << std::endl;
+  decrease_indent(indent);
+  rtl_wrapper << "}" << std::endl;
   decrease_indent(indent);
   rtl_wrapper << indent << "}" << std::endl;
 }
