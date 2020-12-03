@@ -328,8 +328,8 @@ void IlaSim::create_instr_monitor_instance(std::stringstream& rtl_wrapper, std::
   auto ref_var_map = load_json(tandem_rtl_);
   auto instr_map = ref_var_map["instructions"].get<std::vector<nlohmann::json>>();  
   std::set<size_t> cache_declared_id_set_;
-  stringstream cached_header_;
-  string cached_header_indent_;
+  std::stringstream cached_header_;
+  std::string cached_header_indent_;
   cache_declared_id_set_ = declared_id_set_;
   header_.swap(cached_header_);
   cached_header_indent_ = header_indent_;
@@ -338,10 +338,10 @@ void IlaSim::create_instr_monitor_instance(std::stringstream& rtl_wrapper, std::
 
   std::stringstream check_decode_stream;
   for (auto item : instr_map) {
-    auto instr_name = item["instruction"];
+    auto instr_name = item["instruction"].get<std::string>();
     auto instr_p = model_ptr_->instr(instr_name);
-    auto decode_expr = instr_expr->decode();
-    auto DfsKernel = [this, &decode_function, &indent](const ExprPtr& e) {
+    auto decode_expr = instr_p->decode();
+    auto DfsKernel = [this, &check_decode_stream, &indent](const ExprPtr& e) {
       dfs_kernel(check_decode_stream, indent, e);
     };     
     decode_expr->DepthFirstVisit(DfsKernel);
