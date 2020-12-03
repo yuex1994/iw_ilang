@@ -262,7 +262,7 @@ void IlaSim::create_rtl_wrapper_s2() {
   rtl_wrapper.str("");
   std::string indent = "";  
   create_verilated_class(rtl_wrapper, indent);
-  // create_instr_monitor(rtl_wrapper, indent);
+  create_instr_monitor(rtl_wrapper, indent);
   outFile << rtl_wrapper.rdbuf();
   outFile.close();    
 }
