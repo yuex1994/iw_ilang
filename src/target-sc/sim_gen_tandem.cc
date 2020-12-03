@@ -251,7 +251,6 @@ void IlaSim::create_rtl_wrapper() {
   rtl_wrapper.str("");
   std::string indent = ""; 
   auto rtl_map = load_json(tandem_rtl_);
-  auto rtl_name = rtl_map["VERILOG"].get<std::string>();
   auto includes = rtl_map["verilator_include"];
   for (nlohmann::json::iterator it = includes.begin(); it != includes.end(); ++it) 
     rtl_wrapper << indent << "#include <V" << it->get<std::string>() << ".h>" << std::endl;   
@@ -268,7 +267,6 @@ void IlaSim::create_rtl_wrapper_s2() {
   rtl_wrapper.str("");
   std::string indent = "";  
   auto rtl_map = load_json(tandem_rtl_);
-  auto rtl_name = rtl_map["VERILOG"].get<std::string>();
   auto includes = rtl_map["verilator_include"];
   for (nlohmann::json::iterator it = includes.begin(); it != includes.end(); ++it) 
     rtl_wrapper << indent << "#include <V" << it->get<std::string>() << ".h>" << std::endl;  
@@ -321,7 +319,7 @@ void IlaSim::create_instr_monitor_class(std::stringstream& rtl_wrapper, std::str
     decrease_indent(indent);
     rtl_wrapper << indent << "}" << std::endl;
     decrease_indent(indent);
-    rtl_wrapper << indent << "};" << std::endl; << std::endl;
+    rtl_wrapper << indent << "};" << std::endl << std::endl;
   }
 }
 
@@ -366,6 +364,8 @@ void IlaSim::create_instr_monitor_instance(std::stringstream& rtl_wrapper, std::
 }
 
 void IlaSim::create_verilated_class(std::stringstream& rtl_wrapper, std::string& indent) {
+  auto rtl_map = load_json(tandem_rtl_);
+  auto rtl_name = rtl_map["VERILOG"].get<std::string>();  
   rtl_wrapper << indent << "class RTLVerilated {" << std::endl;
   rtl_wrapper << indent << "public:" << std::endl;
   increase_indent(indent);

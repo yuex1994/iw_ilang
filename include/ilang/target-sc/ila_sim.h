@@ -83,7 +83,9 @@ private:
   void create_rtl_wrapper();
   void create_rtl_wrapper_s2(); 
   void create_instr_monitor_class(std::stringstream& rtl_wrapper, std::string& indent); 
+  void create_instr_monitor_instance(std::stringstream& rtl_wrapper, std::string& indent);
   void create_verilated_class(std::stringstream& rtl_wrapper, std::string& indent);
+  void create_verilated_class_s2(std::stringstream& rtl_wrapper, std::string& indent);
   void create_v_in(std::stringstream& rtl_wrapper, std::string& indent);
   void create_v_input(std::stringstream& rtl_wrapper, std::string& indent);
   void create_v_start_condition(std::stringstream& rtl_wrapper, std::string& indent);
