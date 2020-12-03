@@ -276,7 +276,7 @@ void IlaSim::create_instr_monitor_class(std::stringstream& rtl_wrapper, std::str
   rtl_wrapper << indent << "};" << std::endl; 
   rtl_wrapper << std::endl;
   auto ref_var_map = load_json(tandem_rtl_);
-  auto instr_map = ref_var_map["instructions"].get(std::vector<nlohmann::json>);
+  auto instr_map = ref_var_map["instructions"].get<std::vector<nlohmann::json>>();
   for (auto item: instr_map) {
     auto instr_name = item["instruction"].get<std::string>();
     rtl_wrapper << indent << "class InstrMonitor" << instr_name << "{" std::endl;
