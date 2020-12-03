@@ -18,6 +18,7 @@ void IlaSim::create_check_state_header() {
 }
 
 void IlaSim::create_check_state(std::stringstream& tandem_check, std::string& indent) {
+  create_check_state_header();
   auto ref_var_map = load_json(tandem_ref_map_);
   auto state_map = ref_var_map["state mapping"];
   for (uint i = 0; i < model_ptr_->state_num(); i++) {
@@ -329,7 +330,7 @@ void IlaSim::create_v_start_condition(std::stringstream& rtl_wrapper, std::strin
     rtl_wrapper << indent << "bool cond = true;" << std::endl;; 
     for (const auto& item : start_condition.items()) {
       rtl_wrapper << indent << "cond = cond && (" << 
-      "v->v_top->" << boost::replace_all_copy(item.key(), ".", "->") << " == " << item.value() << ")" << std::endl;
+      "v_top->" << boost::replace_all_copy(item.key(), ".", "->") << " == " << item.value() << ");" << std::endl;
     }
     rtl_wrapper << indent << "return cond;" << std::endl;
   }
