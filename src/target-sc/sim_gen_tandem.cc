@@ -202,7 +202,7 @@ void IlaSim::create_i_input(std::stringstream& ila_wrapper, std::string& indent)
   increase_indent(indent);
   for (int i = 0; i < model_ptr_->input_num(); i++) {
     auto input = model_ptr_->input(i);
-    ila_wrapper << indent << "i_top->" << model_ptr_->name().str() << "_" << input->name().str() << " = t_i." << model_ptr_->name().str() << "_" << input->name().str() << ";" << std::endl; 
+    ila_wrapper << indent << "i_top->" << model_ptr_->name().str() << "_" << input->name().str() << " = t_i." << model_ptr_->name().str() << "_" << input->name().str() << ";" << std::endl;
   }
   decrease_indent(indent);
   ila_wrapper << indent << "}" << std::endl;
@@ -294,8 +294,10 @@ void IlaSim::create_instr_monitor_class(std::stringstream& rtl_wrapper, std::str
     rtl_wrapper << indent << "public:" << std::endl;
     increase_indent(indent);
     rtl_wrapper << indent << "uint32_t cycle_left;" << std::endl;
-    rtl_wrapper << indent << "InstrMonitor" << instr_name << "() {" << std::endl;
+    rtl_wrapper << indent << "v_in v_in_;" << std::endl;
+    rtl_wrapper << indent << "InstrMonitor" << instr_name << "(v_in t_v) {" << std::endl;
     increase_indent(indent);
+    rtl_wrapper << indent << "v_in_ = t_v;" << std::endl;
     if (item.contains("ready bound")) {
       rtl_wrapper << indent << "cycle_left = " << item["ready bound"] << ";" << std::endl;
     }
