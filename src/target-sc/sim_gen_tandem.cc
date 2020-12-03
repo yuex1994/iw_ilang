@@ -279,7 +279,7 @@ void IlaSim::create_instr_monitor_class(std::stringstream& rtl_wrapper, std::str
   auto instr_map = ref_var_map["instructions"].get<std::vector<nlohmann::json>>();
   for (auto item: instr_map) {
     auto instr_name = item["instruction"].get<std::string>();
-    rtl_wrapper << indent << "class InstrMonitor" << instr_name << "{" std::endl;
+    rtl_wrapper << indent << "class InstrMonitor" << instr_name << "{" << std::endl;
     rtl_wrapper << indent << "public:" << std::endl;
     increase_indent(indent);
     rtl_wrapper << indent << "uint32_t cycle_left;" << std::endl;
@@ -300,7 +300,7 @@ void IlaSim::create_instr_monitor_class(std::stringstream& rtl_wrapper, std::str
       rtl_wrapper << indent << "return (cycle_left == 0);" << std::endl;
     } else {
       rtl_wrapper << indent << "bool cond = true;" << std::endl;
-      for (auto cond: item["finish condition"]) {
+      for (const auto& cond: item["finish condition"].items()) {
         rtl_wrapper << indent << "cond = cond && (v->v_top->" << boost::replace_all_copy(cond.key(), ".", "->") << " == " << cond.value() << ");" << std::endl;
       }
       rtl_wrapper << indent << "return cond;" << std::endl;
