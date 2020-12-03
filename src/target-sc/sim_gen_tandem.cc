@@ -289,7 +289,9 @@ void IlaSim::create_instr_monitor_class(std::stringstream& rtl_wrapper, std::str
   rtl_wrapper << indent << "class InstrMonitor {" << std::endl;
   rtl_wrapper << indent << "public:" << std::endl;
   increase_indent(indent);
+  rtl_wrapper << indent << "virtual void pass_cycle(RTLVerilated*);" << std::endl;
   rtl_wrapper << indent << "virtual bool is_finish(RTLVerilated*);" << std::endl;
+    increase_indent(indent);
   decrease_indent(indent);
   rtl_wrapper << indent << "};" << std::endl; 
   rtl_wrapper << std::endl;
@@ -313,10 +315,17 @@ void IlaSim::create_instr_monitor_class(std::stringstream& rtl_wrapper, std::str
     } 
     decrease_indent(indent);
     rtl_wrapper << indent << "}" << std::endl;
+    rtl_wrapper << indent << "bool pass_cycle() {" << std::endl;
+    increase_indent(indent);
+    if (item.contains("ready bound")) {
+      rtl_wrapper << indent << "cycle_left = (cycle_left > 0) ? cycle_left - 1 : cycle_left;" << std::endl;    
+    }
+    decrease_indent(indent);
+    rtl_wrapper << indent << "}" << std::endl << std::endl;
+
     rtl_wrapper << indent << "bool is_finish(RTLVerilated*) {" << std::endl;
     increase_indent(indent);
     if (item.contains("ready bound")) {
-      rtl_wrapper << indent << "cycle_left = (cycle_left > 0) ? cycle_left - 1 : cycle_left;" << std::endl;
       rtl_wrapper << indent << "return (cycle_left == 0);" << std::endl;
     } else {
       rtl_wrapper << indent << "bool cond = true;" << std::endl;
@@ -531,13 +540,14 @@ void IlaSim::create_rtl_next_cycle_s2(std::stringstream& rtl_wrapper, std::strin
   rtl_wrapper << indent << "  return;" << std::endl;
   decrease_indent(indent);
   rtl_wrapper << indent << "if (i_m_list.front()->is_finish(this)) {" << std::endl;
+    increase_indent(indent);
   increase_indent(indent);
   rtl_wrapper << indent << "v_in t_v = i_m_list.front().t_v_;" << std::endl;
   rtl_wrapper << indent << "i_m_list.pop_front();" << std::endl;
   rtl_wrapper << indent << "i->v_input(t_v);" << std::endl;
   rtl_wrapper << indent << "i->next_instr(v);" << std::endl;
   decrease_indent(indent);
-  rtl_wrapper << "}" << std::endl;
+  rtl_wrapper << indent << "}" << std::endl;
   decrease_indent(indent);
   rtl_wrapper << indent << "}" << std::endl;
 }
