@@ -128,7 +128,6 @@ void IlaSim::create_tandem_check_s1() {
   std::string indent = "";
   tandem_check << indent << "#include \"" << model_ptr_->name().str() << ".h\""
                << std::endl;
-  create_check_state_header();
   create_check_state(tandem_check, indent);
   outFile << tandem_check.rdbuf();
   outFile.close();  
@@ -255,6 +254,23 @@ void IlaSim::create_rtl_wrapper() {
   outFile.close();    
 }
 
+void IlaSim::create_rtl_wrapper_s2() {
+  std::ofstream outFile;
+  outFile.open(export_dir_ + model_ptr_->name().str() + "_rtl.h");
+  std::stringstream rtl_wrapper;
+  rtl_wrapper.str("");
+  std::string indent = "";  
+  create_verilated_class(rtl_wrapper, indent);
+  // create_instr_monitor(rtl_wrapper, indent);
+  outFile << rtl_wrapper.rdbuf();
+  outFile.close();    
+}
+
+// void IlaSim::create_instr_monitor() {
+//   // For simplicity, consider start condition is just decode function.
+  
+// }
+
 void IlaSim::create_verilated_class(std::stringstream& rtl_wrapper, std::string& indent) {
   auto rtl_map = load_json(tandem_rtl_);
   auto rtl_name = rtl_map["VERILOG"].get<std::string>();
@@ -271,6 +287,7 @@ void IlaSim::create_verilated_class(std::stringstream& rtl_wrapper, std::string&
   rtl_wrapper << indent << "v_top = new V" << rtl_name << "(\"v_top\");" << std::endl;
   decrease_indent(indent);
   rtl_wrapper << indent << "}" << std::endl;
+  create_v_start_condition(rtl_wrapper, indent);
   create_v_input(rtl_wrapper, indent);
   rtl_wrapper << indent << " ~RTLVerilated() {" << std::endl;
   increase_indent(indent);
@@ -297,6 +314,28 @@ void IlaSim::create_v_in(std::stringstream& rtl_wrapper, std::string& indent) {
   }
   decrease_indent(indent);
   rtl_wrapper << indent << "};" << std::endl; 
+}
+
+void IlaSim::create_v_start_condition(std::stringstream& rtl_wrapper, std::string& indent) {
+  auto rtl_map = load_json(tandem_rtl_);
+  rtl_wrapper << std::endl;
+  rtl_wrapper << indent << "bool start_condition(v_in t_v) {" << std::endl;
+  increase_indent(indent);
+
+  if (rtl_map.contains("start condition")) {
+    rtl_wrapper << "return true;" << std::endl;
+  } else {
+    auto start_condition = rtl_map["strat condition"].get<std::string>();
+    rtl_wrapper << indent << "bool cond = true;"; 
+    for (const auto& item : start_condition.items()) {
+      rtl_wrapper << indent << "cond = cond && (" << 
+      "v->v_top->" << boost::replace_all_copy(item.key().get<std::string>(), ".", "->") << " == " << item.value << ")" << std::endl;
+    }
+    rtl_wrapper << indent << "return cond;" << std::endl;
+  }
+  decrease_indent(indent);
+  rtl_wrapper << indent << "}" << std::endl;
+
 }
 
 void IlaSim::create_v_input(std::stringstream& rtl_wrapper, std::string& indent) {

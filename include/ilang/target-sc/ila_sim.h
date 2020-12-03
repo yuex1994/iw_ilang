@@ -84,6 +84,7 @@ private:
   void create_verilated_class(std::stringstream& rtl_wrapper, std::string& indent);
   void create_v_in(std::stringstream& rtl_wrapper, std::string& indent);
   void create_v_input(std::stringstream& rtl_wrapper, std::string& indent);
+  void create_v_start_condition(std::stringstream& rtl_wrapper, std::string& indent);
 
 
 
