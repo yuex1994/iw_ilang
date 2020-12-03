@@ -526,9 +526,9 @@ void IlaSim::create_rtl_next_cycle_s2(std::stringstream& rtl_wrapper, std::strin
   increase_indent(indent);
   rtl_wrapper << indent << "i_m->pass_cycle();" << std::endl;
   decrease_indent(indent);
-  rtl_wrapper << indent << "if (i_m_list.size() == 0)" << std:endl;
+  rtl_wrapper << indent << "if (i_m_list.size() == 0)" << std::endl;
   increase_indent(indent);
-  rtl_wrapper << indent << "  return;" << std:endl;
+  rtl_wrapper << indent << "  return;" << std::endl;
   decrease_indent(indent);
   rtl_wrapper << indent << "if (i_m_list.front()->is_finish(this)) {" << std::endl;
   increase_indent(indent);
