@@ -546,7 +546,7 @@ void IlaSim::create_rtl_next_cycle_s2(std::stringstream& rtl_wrapper, std::strin
   rtl_wrapper << indent << "v_in t_v = i_m_list.front().t_v_;" << std::endl;
   rtl_wrapper << indent << "i_m_list.pop_front();" << std::endl;
   rtl_wrapper << indent << "i->v_input(t_v);" << std::endl;
-  rtl_wrapper << indent << "i->next_instr(v);" << std::endl;
+  rtl_wrapper << indent << "i->next_instr(this);" << std::endl;
   decrease_indent(indent);
   rtl_wrapper << indent << "}" << std::endl;
   decrease_indent(indent);
