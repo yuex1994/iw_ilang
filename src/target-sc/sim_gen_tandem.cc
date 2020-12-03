@@ -388,6 +388,8 @@ void IlaSim::create_verilated_class(std::stringstream& rtl_wrapper, std::string&
 }
 
 void IlaSim::create_verilated_class_s2(std::stringstream& rtl_wrapper, std::string& indent) {
+  auto rtl_map = load_json(tandem_rtl_);
+  auto rtl_name = rtl_map["VERILOG"].get<std::string>();    
   rtl_wrapper << indent << "class RTLVerilated {" << std::endl;
   rtl_wrapper << indent << "public:" << std::endl;
   increase_indent(indent);
