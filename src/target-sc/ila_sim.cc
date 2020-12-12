@@ -76,25 +76,6 @@ void IlaSim::sim_gen_tandem() {
   }
 }
 
-void IlaSim::sim_gen_tandem_s1() {
-  aux_pc_enable_ = true;
-  header_ << header_indent_ << "uint32_t " << model_ptr_->name().str() << "_pc;" << std::endl;
-  tandem_rtl_ = "../refinement/rtl_tmp.json";
-  create_tandem_check_s1();
-  create_ila_wrapper();
-  create_rtl_wrapper_s1();
-  create_default_constructor();
-
-}
-
-void IlaSim::sim_gen_tandem_s2() {
-  tandem_rtl_ = "../refinement/rtl_tmp.json";
-  create_tandem_check_s2();
-  create_ila_wrapper();  
-  create_rtl_wrapper_s2();
-  create_tandem_constructor();
-}
-
 void IlaSim::sim_gen_tandem_s3() {
 }
 

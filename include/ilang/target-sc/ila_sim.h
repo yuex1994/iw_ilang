@@ -83,16 +83,24 @@ private:
   void create_input_v_to_i(std::stringstream& ila_wrapper, std::string& indent);
   void create_rtl_wrapper_s1();
   void create_rtl_wrapper_s2(); 
+  void create_rtl_wrapper_h_s1();
+  void create_rtl_wrapper_h_s2();
+  void create_rtl_wrapper_cc_s1();
+  void create_rtl_wrapper_cc_s2();
   void create_instr_monitor_class(std::stringstream& rtl_wrapper, std::string& indent); 
   void create_instr_monitor_class_header(std::stringstream& rtl_wrapper, std::string& indent); 
   void create_instr_monitor_instance(std::stringstream& rtl_wrapper, std::string& indent);
-  void create_verilated_class_s1(std::stringstream& rtl_wrapper, std::string& indent);
-  void create_verilated_class_s2(std::stringstream& rtl_wrapper, std::string& indent);
-  void create_verilated_class_header_s2(std::stringstream& rtl_wrapper, std::string& indent);
-  void create_v_in(std::stringstream& rtl_wrapper, std::string& indent);
-  void create_v_input_s1(std::stringstream& rtl_wrapper, std::string& indent);
-  void create_v_input_s2(std::stringstream& rtl_wrapper, std::string& indent);
-  void create_v_start_condition(std::stringstream& rtl_wrapper, std::string& indent);
+  void create_rtl_class_s1(std::stringstream& rtl_wrapper, std::string& indent);
+  void create_rtl_class_s2(std::stringstream& rtl_wrapper, std::string& indent);
+  void create_rtl_class_header_s1(std::stringstream& rtl_wrapper, std::string& indent);
+  void create_rtl_class_header_s2(std::stringstream& rtl_wrapper, std::string& indent);
+  void create_rtl_in(std::stringstream& rtl_wrapper, std::string& indent);
+  void create_rtl_constructor(std::stringstream& rtl_wrapper, std::string& indent);
+  void create_rtl_destructor(std::stringstream& rtl_wrapper, std::string& indent);
+  void create_rtl_input(std::stringstream& rtl_wrapper, std::string& indent);
+  void create_rtl_input_with_monitor(std::stringstream& rtl_wrapper, std::string& indent);
+  void create_rtl_av_check(std::stringstream& rtl_wrapper, std::string& indent);
+  void create_start_condition(std::stringstream& rtl_wrapper, std::string& indent);
 
 
 
@@ -195,8 +203,7 @@ private:
 
   void create_default_constructor();
   void create_tandem_constructor();
-  void create_rtl_next_cycle_s1(std::stringstream& rtl_wrapper, std::string& indent);
-  void create_rtl_next_cycle_s2(std::stringstream& rtl_wrapper, std::string& indent);
+  void create_rtl_next_cycle(std::stringstream& rtl_wrapper, std::string& indent, bool av_check=false);
   void create_ila_next_instr(std::stringstream& ila_wrapper, std::string& indent);
 
   void execute_tandem(std::stringstream& execute_kernel, std::string& indent);
