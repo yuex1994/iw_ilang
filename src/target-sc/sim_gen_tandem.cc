@@ -9,11 +9,6 @@ namespace ilang{
 void IlaSim::create_check_state_header() {
   header_ << header_indent_ << "int tandem_f_ptr;" << std::endl;
   header_ << header_indent_ << model_ptr_->name().str() << "();" << std::endl;
-  for (uint i = 0; i < model_ptr_->state_num(); i++) {
-      header_ << header_indent_ << "void check_"
-              << model_ptr_->state(i)->name().str() << "(" << kRTLSimType
-              << "* v);" << std::endl;
-  }
   header_ << header_indent_ << "void check_all_state(" << kRTLSimType << "* v);" << std::endl;
 }
 
@@ -33,6 +28,9 @@ void IlaSim::create_check_state(std::stringstream& tandem_check, std::string& in
     try {
       auto v_name = state_map.at(state_name);      
       // checked_states.insert(state);
+      header_ << header_indent_ << "void check_"
+              << model_ptr_->state(i)->name().str() << "(" << kRTLSimType
+              << "* v);" << std::endl;      
       tandem_check << indent << "void " << model_ptr_->name().str()
                    << "::check_" << state_name << "(" << kRTLSimType << "* v) {"
                    << std::endl;
