@@ -4,6 +4,8 @@
 #include <ilang/ila/ast_fuse.h>
 #include <ilang/util/log.h>
 
+namespace ilang{
+
 void IlaSim::create_tandem_check_s2() {
   std::ofstream outFile;
   outFile.open(export_dir_ + model_ptr_->name().str() + "_tandem.cc");
@@ -118,3 +120,4 @@ void IlaSim::create_rtl_next_cycle_s2(std::stringstream& rtl_wrapper, std::strin
   rtl_wrapper << indent << "}" << std::endl;
 }
 
+}
