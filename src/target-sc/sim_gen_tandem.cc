@@ -420,7 +420,7 @@ void IlaSim::create_rtl_input_with_monitor(std::stringstream& rtl_wrapper, std::
   rtl_wrapper << indent << "}" << std::endl; 
 }
 
-void IlaSim::create_rtl_next_cycle(std::stringstream& rtl_wrapper, std::string& indent, bool av_check=false) {
+void IlaSim::create_rtl_next_cycle(std::stringstream& rtl_wrapper, std::string& indent, bool av_check) {
   auto rtl_map = load_json(tandem_rtl_);
   std::string clk_signal = rtl_map["verilog clock"].get<std::string>();
   bool clk_edge = rtl_map["verilog clock edge"].get<bool>();
