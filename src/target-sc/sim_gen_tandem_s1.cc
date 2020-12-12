@@ -69,6 +69,8 @@ void IlaSim::create_rtl_wrapper_cc_s1() {
   std::ofstream outFile;
   outFile.open(export_dir_ + model_ptr_->name().str() + "_rtl.cc");
   std::stringstream rtl_wrapper_cc;
+  rtl_wrapper_cc.str("");
+  std::string indent = "";
   rtl_wrapper_cc << "#include \"" << model_ptr_->name().str() << "_ila.h\"" << std::endl;
   create_rtl_class_s2(rtl_wrapper_cc, indent);
   outFile << rtl_wrapper_cc.rdbuf();
