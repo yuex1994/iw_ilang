@@ -19,12 +19,12 @@ void IlaSim::create_check_state(std::stringstream& tandem_check, std::string& in
   for (uint i = 0; i < model_ptr_->state_num(); i++) {
     auto state = model_ptr_->state(i);
     auto state_name = state->name().str();    
-    if (GetUidSort(model_ptr_->state(i)->sort()) == AST_UID_SORT::MEM) {
-      tandem_check << indent << "void " << model_ptr_->name().str()
-                   << "::check_" << state_name << "(" << kRTLSimType << "* v) {}"
-                   << std::endl;  
-      continue;
-    }
+    // if (GetUidSort(model_ptr_->state(i)->sort()) == AST_UID_SORT::MEM) {     
+    //   tandem_check << indent << "void " << model_ptr_->name().str()
+    //                << "::check_" << state_name << "(" << kRTLSimType << "* v) {}"
+    //                << std::endl;  
+    //   continue;
+    // }
     try {
       auto v_name = state_map.at(state_name);      
       // checked_states.insert(state);
@@ -35,7 +35,12 @@ void IlaSim::create_check_state(std::stringstream& tandem_check, std::string& in
                    << "::check_" << state_name << "(" << kRTLSimType << "* v) {"
                    << std::endl;
       increase_indent(indent);
-      if ((GetUidSort(state->sort()) == AST_UID_SORT::BOOL)) {
+      if (GetUidSort(model_ptr_->state(i)->sort()) == AST_UID_SORT::MEM) {     
+        tandem_check << indent << "void " << model_ptr_->name().str()
+                    << "::check_" << state_name << "(" << kRTLSimType << "* v) {}"
+                    << std::endl;  
+      }      
+      else if ((GetUidSort(state->sort()) == AST_UID_SORT::BOOL)) {
         tandem_check << indent << "if (" << model_ptr_->name().str() << "_"
                      << state_name << " != "
                      << "v->v_top->"
