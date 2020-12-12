@@ -104,15 +104,18 @@ void IlaSim::create_check_instr_header() {
 }
 
 void IlaSim::create_check_instr(std::stringstream& tandem_check, std::string& indent) {
+  auto ref_var_map = load_json(tandem_ref_map_);
+  auto state_map = ref_var_map["state mapping"];  
   for (uint i = 0; i < model_ptr_->instr_num(); i++) {
     auto instr = model_ptr_->instr(i);
     tandem_check << indent << "void " << model_ptr_->name().str() << "::tandem_instr_"
                  << instr->name().str() << "(" << kRTLSimType << "* v) {" << std::endl;
     increase_indent(indent);
     for (auto updated_state_name : instr->updated_states()) {
-      auto update_expr = instr->update(updated_state_name);
-      auto updated_state = model_ptr_->state(updated_state_name);
-      tandem_check << indent << "check_" << updated_state_name << "(v);" << std::endl;
+      try  {
+        auto v_name = state_map.at(updated_state_name);
+        tandem_check << indent << "check_" << updated_state_name << "(v);" << std::endl;
+      } catch (nlohmann::detail::out_of_range& e) {}      
     }
     decrease_indent(indent);
     tandem_check << indent << "}" << std::endl;
