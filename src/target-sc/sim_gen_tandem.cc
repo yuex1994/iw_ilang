@@ -35,9 +35,7 @@ void IlaSim::create_check_state(std::stringstream& tandem_check, std::string& in
                    << "::check_" << state_name << "(" << kRTLSimType << "* v) {"
                    << std::endl;
       increase_indent(indent);
-      if (GetUidSort(model_ptr_->state(i)->sort()) == AST_UID_SORT::MEM) {     
-        decrease_indent(indent);
-        tandem_check << indent << "}" << std::endl;
+      if (GetUidSort(model_ptr_->state(i)->sort()) == AST_UID_SORT::MEM) {
       } else if ((GetUidSort(state->sort()) == AST_UID_SORT::BOOL)) {
         tandem_check << indent << "if (" << model_ptr_->name().str() << "_"
                      << state_name << " != "
