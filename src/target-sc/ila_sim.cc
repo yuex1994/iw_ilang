@@ -82,7 +82,7 @@ void IlaSim::sim_gen_tandem_s1() {
   tandem_rtl_ = "../refinement/rtl_tmp.json";
   create_tandem_check_s1();
   create_ila_wrapper();
-  create_rtl_wrapper();
+  create_rtl_wrapper_s1();
   create_default_constructor();
 
 }
