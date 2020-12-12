@@ -90,6 +90,7 @@ private:
   void create_instr_monitor_class(std::stringstream& rtl_wrapper, std::string& indent); 
   void create_instr_monitor_class_header(std::stringstream& rtl_wrapper, std::string& indent); 
   void create_instr_monitor_instance(std::stringstream& rtl_wrapper, std::string& indent);
+  void create_rtl_wrapper_def(std::stringstream& rtl_wrapper, std::string& indent);
   void create_rtl_class_s1(std::stringstream& rtl_wrapper, std::string& indent);
   void create_rtl_class_s2(std::stringstream& rtl_wrapper, std::string& indent);
   void create_rtl_class_header_s1(std::stringstream& rtl_wrapper, std::string& indent);
