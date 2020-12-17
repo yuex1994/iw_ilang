@@ -4,14 +4,14 @@
 #include <ilang/ila/ast_fuse.h>
 #include <ilang/util/log.h>
 
-namespace ilang{
-void IlaSim::sim_gen_tandem_s3(){
+namespace ilang { 
+
+void IlaSim::sim_gen_tandem_s3() {
   tandem_rtl_ = "../refinement/rtl_tmp.json";
   create_tandem_check_s3();
   create_ila_wrapper();  
   create_rtl_wrapper_s2(); 
   create_model_checkpoint_cc(); 
-
 }
 
 void IlaSim::create_tandem_check_s2() {
