@@ -76,9 +76,6 @@ void IlaSim::sim_gen_tandem() {
   }
 }
 
-void IlaSim::sim_gen_tandem_s3() {
-}
-
 void IlaSim::sim_gen_tandem_s4() {
 }
 
@@ -241,8 +238,10 @@ void IlaSim::sim_gen_execute_kernel() {
   if (!qemu_device_)
     execute_write_output(execute_kernel, indent);
   decrease_indent(indent);
-  if (tandem_scenario_ > 1) 
-    execute_tandem(execute_kernel, indent);
+  if (tandem_scenario_ == 2) 
+    execute_tandem_s2(execute_kernel, indent);
+  else if (tandem_scenario_ == 3)
+    execute_tandem_s3(execute_kernel, indent);
   execute_kernel << indent << "};" << std::endl;
   execute_kernel_export(execute_kernel);
   execute_kernel_mk_file();

@@ -19,12 +19,6 @@ void IlaSim::create_check_state(std::stringstream& tandem_check, std::string& in
   for (uint i = 0; i < model_ptr_->state_num(); i++) {
     auto state = model_ptr_->state(i);
     auto state_name = state->name().str();    
-    // if (GetUidSort(model_ptr_->state(i)->sort()) == AST_UID_SORT::MEM) {     
-    //   tandem_check << indent << "void " << model_ptr_->name().str()
-    //                << "::check_" << state_name << "(" << kRTLSimType << "* v) {}"
-    //                << std::endl;  
-    //   continue;
-    // }
     try {
       auto v_name = state_map.at(state_name);      
       // checked_states.insert(state);
@@ -124,23 +118,30 @@ void IlaSim::create_check_instr(std::stringstream& tandem_check, std::string& in
 }
 
 void IlaSim::create_ila_wrapper() {
-  std::ofstream outFile_header;
-  outFile_header.open(export_dir_ + model_ptr_->name().str() + "_ila.h");
+  create_ila_wrapper_h();
+  create_ila_wrapper_cc();
+}
+
+void IlaSim::create_ila_wrapper_h() {
+  std::ofstream outFile;
+  outFile.open(export_dir_ + model_ptr_->name().str() + "_ila.h");
   std::stringstream ila_wrapper_header;
   ila_wrapper_header.str("");
   std::string indent = "";  
   create_ilated_class_header(ila_wrapper_header, indent);
-  outFile_header << ila_wrapper_header.rdbuf();
-  outFile_header.close();
+  outFile << ila_wrapper_header.rdbuf();
+  outFile.close();  
+}
 
-  std::ofstream outFile_src;
-  outFile_src.open(export_dir_ + model_ptr_->name().str() + "_ila.cc");
+void IlaSim::create_ila_wrapper_cc() {
+  std::ofstream outFile;
+  outFile.open(export_dir_ + model_ptr_->name().str() + "_ila.cc");
   std::stringstream ila_wrapper_src;
   ila_wrapper_src.str("");
   indent = "";  
   create_ilated_class(ila_wrapper_src, indent);
-  outFile_src << ila_wrapper_src.rdbuf();
-  outFile_src.close();  
+  outFile << ila_wrapper_src.rdbuf();
+  outFile.close();  
 }
 
 void IlaSim::create_ilated_class_header(std::stringstream& ila_wrapper, std::string& indent) {
@@ -474,6 +475,15 @@ void IlaSim::create_rtl_in(std::stringstream& rtl_wrapper, std::string& indent) 
   rtl_wrapper << indent << "};" << std::endl; 
 }
 
+void IlaSim::create_rtl_wrapper_def(std::stringstream& rtl_wrapper, std::string& indent) {
+  auto rtl_map = load_json(tandem_rtl_);
+  auto includes = rtl_map["verilator_include"];
+  for (nlohmann::json::iterator it = includes.begin(); it != includes.end(); ++it) 
+    rtl_wrapper << indent << "#include <V" << it->get<std::string>() << ".h>" << std::endl;   
+  rtl_wrapper << indent << "class Ilated;" << std::endl;    
+  rtl_wrapper << indent << "class RTLVerilated;" << std::endl;    
+}
+
 nlohmann::json IlaSim::load_json(std::string file_name) {
   std::ifstream fin(file_name);
   if (!fin.is_open()) {
@@ -485,7 +495,7 @@ nlohmann::json IlaSim::load_json(std::string file_name) {
   return j;
 }
 
-void IlaSim::create_default_constructor() {
+void IlaSim::create_model_default_cc() {
   std::ofstream outFile;
   outFile.open(export_dir_ + model_ptr_->name().str() + ".cc");
   std::stringstream tandem_constructor;
@@ -496,7 +506,7 @@ void IlaSim::create_default_constructor() {
   outFile.close();
 }
 
-void IlaSim::create_tandem_constructor() {
+void IlaSim::create_model_tandem_cc() {
   std::ofstream outFile;
   outFile.open(export_dir_ + model_ptr_->name().str() + ".cc");
   std::stringstream tandem_constructor;
@@ -509,6 +519,56 @@ void IlaSim::create_tandem_constructor() {
   }
   decrease_indent(indent);
   tandem_constructor << "}" << std::endl;  
+  outFile << tandem_constructor.rdbuf();
+  outFile.close();
+}
+
+
+void IlaSim::create_model_checkpoint_cc() {
+  std::ofstream outFile;
+  outFile.open(export_dir_ + model_ptr_->name().str() + ".cc");
+  std::stringstream tandem_constructor;
+  std::string indent = "";
+  tandem_constructor << indent << "#include \"" << model_ptr_->name().str() << ".h\"" << std::endl;
+  auto rtl_map = load_json(tandem_rtl_);
+  auto checkpoint_map = rtl_map["checkpoint"];
+  tandem_constructor << indent << model_ptr_->name().str() << "::" << model_ptr_->name().str() << "() {" << std::endl;
+  increase_indent(indent);  
+  try {
+    int period = rtl_map["period"].get<int>();
+    tandem_constructor << indent << "checkpoint_period = " << period << std::endl;
+  } catch (nlohmann::detail::out_of_range& e) {
+    tandem_constructor << indent << "checkpoint_period = 0;" << std::endl;
+  }
+  try {
+    auto sequence = rtl_map["sequence"].get<std::vector<int>>();
+    tandem_constructor << indent << "checkpoint_seq = new uint32_t[" << sequence.size() << "];" << std::endl;
+    tandem_constructor << indent << "uint32_t seq[] = { ";
+    for (int i = 0; i < sequence.size() - 1; i++) {
+      tandem_constructor << sequence[i] << ", "; 
+    }
+    tandem_check << sequence.back() << "};" << std::endl;
+    tandem_check << indent << "for (int i = 0; i < " << sequence.size() << "; i++) {check_seq[i] = seq[i];}" << std::endl;
+  } catch (nlohmann::detail::out_of_range& e) {
+    tandem_constructor << "checkpoint_seq = NULL;" << std::endl;
+  }
+
+  // for (uint i = 0; i < model_ptr_->instr_num(); i++) {
+  //   tandem_constructor << indent << "tandem_f[" << i << "] = &" << model_ptr_->name().str() << "::tandem_instr_" << model_ptr_->instr(i)->name().str() << ";" << std::endl;
+  // }
+  decrease_indent(indent);
+  tandem_constructor << "}" << std::endl;  
+  header_ << header_indent_ << "bool checkpoint_condition();" << std::endl;
+  tandem_constructor << indent << "bool " << model_ptr_->name().str() << "::checkpoint_condition() {" << std::endl;
+  increase_indent(indent);
+  try {
+    auto checkpoint_condition = rtl_map["condition"].get<std::string>();
+    tandem_check << indent << "return (" << condition << ");" << std::endl;
+  } catch (nlohmann::detail::out_of_range& e) {
+    tandem_constructor << indent << "return false;" << std::endl;
+  }
+  decrease_indent(indent);
+  tandem_check << indent << "}" << std::endl;
   outFile << tandem_constructor.rdbuf();
   outFile.close();
 }

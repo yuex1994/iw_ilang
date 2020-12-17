@@ -11,7 +11,7 @@ void IlaSim::sim_gen_tandem_s2() {
   create_tandem_check_s2();
   create_ila_wrapper();  
   create_rtl_wrapper_s2();
-  create_tandem_constructor();
+  create_model_tandem_cc();
 }
 
 void IlaSim::create_tandem_check_s2() {
@@ -49,15 +49,6 @@ void IlaSim::create_rtl_wrapper_h_s2() {
   create_rtl_class_header_s2(rtl_wrapper, indent);
   outFile << rtl_wrapper.rdbuf();
   outFile.close();       
-}
-
-void IlaSim::create_rtl_wrapper_def(std::stringstream& rtl_wrapper, std::string& indent) {
-  auto rtl_map = load_json(tandem_rtl_);
-  auto includes = rtl_map["verilator_include"];
-  for (nlohmann::json::iterator it = includes.begin(); it != includes.end(); ++it) 
-    rtl_wrapper << indent << "#include <V" << it->get<std::string>() << ".h>" << std::endl;   
-  rtl_wrapper << indent << "class Ilated;" << std::endl;    
-  rtl_wrapper << indent << "class RTLVerilated;" << std::endl;    
 }
 
 void IlaSim::create_rtl_class_header_s2(std::stringstream& rtl_wrapper, std::string& indent) {

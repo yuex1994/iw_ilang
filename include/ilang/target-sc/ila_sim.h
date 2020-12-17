@@ -76,6 +76,9 @@ private:
   void create_tandem_check_s1();
   void create_tandem_check_s2();
   void create_ila_wrapper();
+  void create_ila_wrapper_h();
+  void create_ila_wrapper_cc();
+
   void create_ilated_class(std::stringstream& ila_wrapper, std::string& indent);
   void create_ilated_class_header(std::stringstream& ila_wrapper, std::string& indent);
   void create_i_in(std::stringstream& ila_wrapper, std::string& indent);
@@ -202,12 +205,14 @@ private:
   void execute_kernel_mk_file();
   void execute_kernel_header();
 
-  void create_default_constructor();
-  void create_tandem_constructor();
+  void create_model_default_cc();
+  void create_model_tandem_cc();
+  void create_model_checkpoint_cc();
   void create_rtl_next_cycle(std::stringstream& rtl_wrapper, std::string& indent, bool av_check=false);
   void create_ila_next_instr(std::stringstream& ila_wrapper, std::string& indent);
 
-  void execute_tandem(std::stringstream& execute_kernel, std::string& indent);
+  void execute_tandem_s2(std::stringstream& execute_kernel, std::string& indent);
+  void execute_tandem_s3(std::stringstream& execute_kernel, std::string& indent);
 
   void dfs_store_op(const ExprPtr& expr);
   void dfs_load_from_store(const ExprPtr& expr);

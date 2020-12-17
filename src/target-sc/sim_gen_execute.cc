@@ -420,7 +420,7 @@ void IlaSim::execute_kernel_header() {
   }
 }
 
-void IlaSim::execute_tandem(std::stringstream& execute_kernel,
+void IlaSim::execute_tandem_s2(std::stringstream& execute_kernel,
                             std::string& indent) {
   increase_indent(indent);
   execute_kernel << indent << "if ((tandem_f_ptr >= 0) && (tandem_f_ptr < "
@@ -431,8 +431,16 @@ void IlaSim::execute_tandem(std::stringstream& execute_kernel,
   execute_kernel << indent << "else {" << std::endl;
   execute_kernel << "  throw " << model_ptr_->name().str()
                    << "Exception(\"Ran unspecified function!\");" << std::endl;
-  decrease_indent(indent);                   
   execute_kernel << indent << "}" << std::endl;
+  decrease_indent(indent);                   
+}
+
+
+void IlaSim::execute_tandem_s3(std::stringstream& execute_kernel,
+                            std::string& indent) {
+  increase_indent(indent);
+  execute_kernel << indent << "tandem_checkpoint(v);" << std::endl;
+  decrease_indent(indent);
 }
 
 }; // namespace ilang
