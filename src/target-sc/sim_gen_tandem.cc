@@ -79,7 +79,7 @@ void IlaSim::create_check_state(std::stringstream& tandem_check, std::string& in
     try  {
       auto v_name = state_map.at(state_name);
       tandem_check << indent << "check_" << state_name << "(v);" << std::endl; 
-    } catch (nlohmann::detail::out_of_range& e) {continue; }
+    } catch (nlohmann::detail::out_of_range& e) {}
   }
   decrease_indent(indent);  
   tandem_check << indent << "}" << std::endl;
@@ -539,7 +539,6 @@ void IlaSim::create_model_checkpoint_cc() {
     tandem_constructor << indent << "checkpoint_period = " << period << std::endl;
   } catch (nlohmann::detail::out_of_range& e) {
     tandem_constructor << indent << "checkpoint_period = 0;" << std::endl;
-    continue;
   }
   try {
     auto sequence = rtl_map["sequence"].get<std::vector<int>>();
@@ -552,7 +551,6 @@ void IlaSim::create_model_checkpoint_cc() {
     tandem_constructor << indent << "for (int i = 0; i < " << sequence.size() << "; i++) {check_seq[i] = seq[i];}" << std::endl;
   } catch (nlohmann::detail::out_of_range& e) {
     tandem_constructor << "checkpoint_seq = NULL;" << std::endl;
-    continue;
   }
 
   // for (uint i = 0; i < model_ptr_->instr_num(); i++) {
@@ -568,7 +566,6 @@ void IlaSim::create_model_checkpoint_cc() {
     tandem_constructor << indent << "return (" << checkpoint_condition << ");" << std::endl;
   } catch (nlohmann::detail::out_of_range& e) {
     tandem_constructor << indent << "return false;" << std::endl;
-    continue;
   }
   decrease_indent(indent);
   tandem_constructor << indent << "}" << std::endl;
