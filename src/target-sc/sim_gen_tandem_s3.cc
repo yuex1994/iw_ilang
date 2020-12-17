@@ -14,7 +14,7 @@ void IlaSim::sim_gen_tandem_s3() {
   create_model_checkpoint_cc(); 
 }
 
-void IlaSim::create_tandem_check_s2() {
+void IlaSim::create_tandem_check_s3() {
   std::ofstream outFile;
   outFile.open(export_dir_ + model_ptr_->name().str() + "_tandem.cc");
   std::stringstream tandem_check;
