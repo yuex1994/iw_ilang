@@ -8,10 +8,15 @@ namespace ilang {
 
 void IlaSim::sim_gen_tandem_s3() {
   tandem_rtl_ = "../refinement/rtl_tmp.json";
+  std::cout << "yxdbg1" << std::endl;
   create_tandem_check_s3();
-  create_ila_wrapper();  
+  std::cout << "yxdbg2" << std::endl;
+  create_ila_wrapper();
+  std::cout << "yxdbg3" << std::endl;
   create_rtl_wrapper_s2(); 
+  std::cout << "yxdbg4" << std::endl;
   create_model_checkpoint_cc(); 
+  std::cout << "yxdbg5" << std::endl;
 }
 
 void IlaSim::create_tandem_check_s3() {
