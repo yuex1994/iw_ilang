@@ -568,7 +568,7 @@ void IlaSim::create_model_checkpoint_cc() {
     tandem_constructor << indent << "return false;" << std::endl;
   }
   decrease_indent(indent);
-  tandem_check << indent << "}" << std::endl;
+  tandem_constructor << indent << "}" << std::endl;
   outFile << tandem_constructor.rdbuf();
   outFile.close();
 }
