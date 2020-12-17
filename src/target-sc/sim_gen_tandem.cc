@@ -79,7 +79,7 @@ void IlaSim::create_check_state(std::stringstream& tandem_check, std::string& in
     try  {
       auto v_name = state_map.at(state_name);
       tandem_check << indent << "check_" << state_name << "(v);" << std::endl; 
-    } catch (nlohmann::detail::out_of_range& e) {}
+    } catch (nlohmann::detail::out_of_range& e) {continue; }
   }
   decrease_indent(indent);  
   tandem_check << indent << "}" << std::endl;
