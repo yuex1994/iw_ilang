@@ -535,13 +535,13 @@ void IlaSim::create_model_checkpoint_cc() {
   tandem_constructor << indent << model_ptr_->name().str() << "::" << model_ptr_->name().str() << "() {" << std::endl;
   increase_indent(indent);  
   try {
-    int period = rtl_map["period"].get<int>();
+    int period = checkpoint_map["period"].get<int>();
     tandem_constructor << indent << "checkpoint_period = " << period << std::endl;
   } catch (nlohmann::detail::out_of_range& e) {
     tandem_constructor << indent << "checkpoint_period = 0;" << std::endl;
   }
   try {
-    auto sequence = rtl_map["sequence"].get<std::vector<int>>();
+    auto sequence = checkpoint_map["sequence"].get<std::vector<int>>();
     tandem_constructor << indent << "checkpoint_seq = new uint32_t[" << sequence.size() << "];" << std::endl;
     tandem_constructor << indent << "uint32_t seq[] = { ";
     for (int i = 0; i < sequence.size() - 1; i++) {
@@ -562,7 +562,7 @@ void IlaSim::create_model_checkpoint_cc() {
   tandem_constructor << indent << "bool " << model_ptr_->name().str() << "::checkpoint_condition() {" << std::endl;
   increase_indent(indent);
   try {
-    auto checkpoint_condition = rtl_map["condition"].get<std::string>();
+    auto checkpoint_condition = checkpoint_map["condition"].get<std::string>();
     tandem_constructor << indent << "return (" << checkpoint_condition << ");" << std::endl;
   } catch (nlohmann::detail::out_of_range& e) {
     tandem_constructor << indent << "return false;" << std::endl;
