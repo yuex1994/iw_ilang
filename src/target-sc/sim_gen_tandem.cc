@@ -138,7 +138,7 @@ void IlaSim::create_ila_wrapper_cc() {
   outFile.open(export_dir_ + model_ptr_->name().str() + "_ila.cc");
   std::stringstream ila_wrapper_src;
   ila_wrapper_src.str("");
-  indent = "";  
+  std::string indent = "";  
   create_ilated_class(ila_wrapper_src, indent);
   outFile << ila_wrapper_src.rdbuf();
   outFile.close();  
@@ -547,8 +547,8 @@ void IlaSim::create_model_checkpoint_cc() {
     for (int i = 0; i < sequence.size() - 1; i++) {
       tandem_constructor << sequence[i] << ", "; 
     }
-    tandem_check << sequence.back() << "};" << std::endl;
-    tandem_check << indent << "for (int i = 0; i < " << sequence.size() << "; i++) {check_seq[i] = seq[i];}" << std::endl;
+    tandem_constructor << sequence.back() << "};" << std::endl;
+    tandem_constructor << indent << "for (int i = 0; i < " << sequence.size() << "; i++) {check_seq[i] = seq[i];}" << std::endl;
   } catch (nlohmann::detail::out_of_range& e) {
     tandem_constructor << "checkpoint_seq = NULL;" << std::endl;
   }
@@ -563,7 +563,7 @@ void IlaSim::create_model_checkpoint_cc() {
   increase_indent(indent);
   try {
     auto checkpoint_condition = rtl_map["condition"].get<std::string>();
-    tandem_check << indent << "return (" << condition << ");" << std::endl;
+    tandem_constructor << indent << "return (" << checkpoint_condition << ");" << std::endl;
   } catch (nlohmann::detail::out_of_range& e) {
     tandem_constructor << indent << "return false;" << std::endl;
   }
