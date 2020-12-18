@@ -9,6 +9,7 @@ namespace ilang{
 void IlaSim::sim_gen_tandem_s1() {
   aux_pc_enable_ = true;
   header_ << header_indent_ << "uint32_t " << model_ptr_->name().str() << "_pc;" << std::endl;
+  header_ << header_indent_ << model_ptr_->name().str() << "();" << std::endl;
   tandem_rtl_ = "../refinement/rtl_tmp.json";
   create_tandem_check_s1();
   create_ila_wrapper();

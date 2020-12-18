@@ -8,7 +8,6 @@ namespace ilang{
 
 void IlaSim::create_check_state_header() {
   header_ << header_indent_ << "int tandem_f_ptr;" << std::endl;
-  header_ << header_indent_ << model_ptr_->name().str() << "();" << std::endl;
   header_ << header_indent_ << "void check_all_state(" << kRTLSimType << "* v);" << std::endl;
 }
 
@@ -532,8 +531,9 @@ void IlaSim::create_model_checkpoint_cc() {
   tandem_constructor << indent << "#include \"" << model_ptr_->name().str() << ".h\"" << std::endl;
   auto rtl_map = load_json(tandem_rtl_);
   auto checkpoint_map = rtl_map["checkpoint"];
-  tandem_constructor << indent << model_ptr_->name().str() << "::" << model_ptr_->name().str() << "() {" << std::endl;
+  tandem_constructor << indent << model_ptr_->name().str() << "::" << model_ptr_->name().str() << "(uint32_t mode) {" << std::endl;
   increase_indent(indent);  
+  tandem_constructor << indent << "checkpoint_mode = mode;" << std::endl;
   try {
     int period = checkpoint_map["period"].get<int>();
     tandem_constructor << indent << "checkpoint_period = " << period << std::endl;
