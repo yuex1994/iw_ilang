@@ -36,6 +36,7 @@ void IlaSim::create_tandem_check_s3() {
 void IlaSim::create_tandem_checkpoint(std::stringstream& tandem_check, std::string& indent) {
   auto rtl_map = load_json(tandem_rtl_);
   auto rtl_name = rtl_map["checkpoint"];
+  header_ << header_indent_ << "void tandem_checkpoint(" << kRTLSimType << "* v);" << std::endl; 
   tandem_check << indent << "void " << model_ptr_->name().str() << "::tandem_checkpoint(" << kRTLSimType << "* v) {" << std::endl;
   increase_indent(indent);
   tandem_check << indent << "instr_ctr++;" << std::endl;
