@@ -536,7 +536,7 @@ void IlaSim::create_model_checkpoint_cc() {
   tandem_constructor << indent << "checkpoint_mode = mode;" << std::endl;
   try {
     int period = checkpoint_map["period"].get<int>();
-    tandem_constructor << indent << "checkpoint_period = " << period << std::endl;
+    tandem_constructor << indent << "checkpoint_period = " << period << ";" << std::endl;
   } catch (nlohmann::detail::out_of_range& e) {
     tandem_constructor << indent << "checkpoint_period = 0;" << std::endl;
   }
