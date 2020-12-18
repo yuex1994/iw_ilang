@@ -77,11 +77,17 @@ private:
   void create_tandem_check_s2();
   void create_tandem_check_s3(); 
   void create_ila_wrapper();
+  void create_ila_wrapper_s3();
   void create_ila_wrapper_h();
+  void create_ila_wrapper_s3_h();
   void create_ila_wrapper_cc();
+  void create_ila_wrapper_s3_cc();
+  
 
   void create_ilated_class(std::stringstream& ila_wrapper, std::string& indent);
+  void create_ilated_class_s3(std::stringstream& ila_wrapper, std::string& indent);
   void create_ilated_class_header(std::stringstream& ila_wrapper, std::string& indent);
+  void create_ilated_class_header_s3(std::stringstream& ila_wrapper, std::string& indent);
   void create_i_in(std::stringstream& ila_wrapper, std::string& indent);
   void create_i_input(std::stringstream& ila_wrapper, std::string& indent);  
   void create_input_v_to_i(std::stringstream& ila_wrapper, std::string& indent);
