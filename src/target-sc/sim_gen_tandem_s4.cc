@@ -22,7 +22,7 @@ void IlaSim::create_tandem_check_s4() {
   std::ofstream outFile;
   outFile.open(export_dir_ + model_ptr_->name().str() + "_tandem.cc");
   std::stringstream tandem_swap;
-  tandem_check.str("");
+  tandem_swap.str("");
   std::string indent = "";
   tandem_swap << indent << "#include \"" << model_ptr_->name().str() << ".h\""<< std::endl;
   create_tandem_swap(tandem_swap, indent);
