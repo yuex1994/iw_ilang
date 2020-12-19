@@ -17,15 +17,10 @@ void IlaSim::sim_gen_tandem_s3() {
   header_ << header_indent_ << "uint32_t* checkpoint_seq;" << std::endl;    
   header_ << header_indent_ << "uint32_t checkpoint_ptr;" << std::endl; 
   header_ << header_indent_ << "bool checkpoint_condition();" << std::endl;
-  std::cout << "yxdbg1" << std::endl;
   create_tandem_check_s3();
-  std::cout << "yxdbg2" << std::endl;
   create_ila_wrapper_s3();
-  std::cout << "yxdbg3" << std::endl;
   create_rtl_wrapper_s2(); 
-  std::cout << "yxdbg4" << std::endl;
   create_model_checkpoint_cc(); 
-  std::cout << "yxdbg5" << std::endl;
 }
 
 void IlaSim::create_tandem_check_s3() {
@@ -66,9 +61,7 @@ void IlaSim::create_tandem_checkpoint(std::stringstream& tandem_check, std::stri
   tandem_check << indent << "if (checkpoint_condition()) { check_all_state(v); }" << std::endl;
   tandem_check << indent << "break;" << std::endl;
   decrease_indent(indent);    
-  increase_indent(indent);
   tandem_check << indent << "default: break;" << std::endl;
-  decrease_indent(indent);
   decrease_indent(indent);
   tandem_check << "}" << std::endl;
   decrease_indent(indent);

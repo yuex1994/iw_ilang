@@ -76,6 +76,7 @@ private:
   void create_tandem_check_s1();
   void create_tandem_check_s2();
   void create_tandem_check_s3(); 
+  void create_tandem_check_s4(); 
   void create_ila_wrapper();
   void create_ila_wrapper_s3();
   void create_ila_wrapper_h();
@@ -113,16 +114,13 @@ private:
   void create_rtl_av_check(std::stringstream& rtl_wrapper, std::string& indent);
   void create_start_condition(std::stringstream& rtl_wrapper, std::string& indent);
   void create_tandem_checkpoint(std::stringstream& tandem_check, std::string& indent);
-
-
-
-
-
+  void create_tandem_swap(std::stringstream& tandem_swap, std::string& indent);
 
   void create_check_state(std::stringstream& tandem_check, std::string& indent);
   void create_check_state_header();
   void create_check_instr_header();
   void create_check_instr(std::stringstream& tandem_check, std::string& indent);
+  void create_swap_state(std::stringstream& tandem_swap, std::string& indent);  
   void sim_gen_state_update();
   void sim_gen_execute_kernel();
   void sim_gen_execute_invoke();
