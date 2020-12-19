@@ -90,7 +90,7 @@ void IlaSim::create_rtl_class_s1(std::stringstream& rtl_wrapper, std::string& in
 void IlaSim::create_rtl_input(std::stringstream& rtl_wrapper, std::string& indent) {
   auto rtl_map = load_json(tandem_rtl_);
   auto rtl_inputs = rtl_map["verilog inputs"];
-  rtl_wrapper << indent << "void v_input(v_in t_v) {" << std::endl;
+  rtl_wrapper << indent << "void RTLVerilated::v_input(v_in t_v) {" << std::endl;
   increase_indent(indent);
   rtl_wrapper << indent << "if (start_condition(t_v)) {" << std::endl;
   increase_indent(indent);
