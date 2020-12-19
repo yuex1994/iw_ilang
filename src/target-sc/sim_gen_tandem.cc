@@ -7,7 +7,6 @@
 namespace ilang{
 
 void IlaSim::create_check_state_header() {
-  header_ << header_indent_ << "int tandem_f_ptr;" << std::endl;
   header_ << header_indent_ << "void check_all_state(" << kRTLSimType << "* v);" << std::endl;
 }
 

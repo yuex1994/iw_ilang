@@ -11,6 +11,7 @@ void IlaSim::sim_gen_tandem_s3() {
   aux_pc_enable_ = true;
   header_ << header_indent_ << "uint32_t " << model_ptr_->name().str() << "_pc;" << std::endl;
   header_ << header_indent_ << model_ptr_->name().str() << "(uint32_t mode);" << std::endl;
+  header_ << header_indent_ << "int tandem_f_ptr;" << std::endl;
   header_ << header_indent_ << "uint32_t checkpoint_mode;" << std::endl;
   header_ << header_indent_ << "uint32_t checkpoint_period;" << std::endl;
   header_ << header_indent_ << "uint32_t instr_ctr;" << std::endl;
