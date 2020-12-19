@@ -11,7 +11,7 @@ void IlaSim::sim_gen_tandem_s4() {
   aux_pc_enable_ = true;
   header_ << header_indent_ << "uint32_t " << model_ptr_->name().str() << "_pc;" << std::endl;
   header_ << header_indent_ << model_ptr_->name().str() << "();" << std::endl;
-  header_ << header_indent_ << "tandem_swap(" << kRTLSimType << " *v);" << std::endl; 
+  header_ << header_indent_ << "void tandem_swap(" << kRTLSimType << " *v);" << std::endl; 
   create_tandem_check_s4();
   create_ila_wrapper();  
   create_rtl_wrapper_s1();
