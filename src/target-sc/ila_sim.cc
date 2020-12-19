@@ -76,9 +76,6 @@ void IlaSim::sim_gen_tandem() {
   }
 }
 
-void IlaSim::sim_gen_tandem_s4() {
-}
-
 void IlaSim::sim_gen_init_header() {
   if (!qemu_device_) {
     header_ << header_indent_ << "#include \"systemc.h\"" << std::endl;
