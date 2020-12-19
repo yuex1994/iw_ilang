@@ -49,6 +49,8 @@ void IlaSim::create_swap_state(std::stringstream& tandem_swap, std::string& inde
         tandem_swap << "}" << std::endl;
       } else if ((GetUidSort(state->sort()) == AST_UID_SORT::BOOL)) {
         tandem_swap << indent << "v->v_top->" << boost::replace_all_copy(boost::replace_all_copy(v_name.dump(), ".", "->"), "\"", "") << " = " << model_ptr_->name().str() << "_" << state_name << ";" << std::endl;
+      } else if (state->sort()->bit_width() < 8) {
+        boost::replace_all_copy(boost::replace_all_copy(v_name.dump(), ".", "->"), "\"", "") << " = (uint32_t)" << model_ptr_->name().str() << "_" << state_name << ";" << std::endl;
       } else if (state->sort()->bit_width() <= 64) {
         tandem_swap << indent << "v->v_top->" << boost::replace_all_copy(boost::replace_all_copy(v_name.dump(), ".", "->"), "\"", "") << " = " << model_ptr_->name().str() << "_" << state_name << ";" << std::endl;
       } else {
