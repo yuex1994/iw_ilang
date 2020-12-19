@@ -6,7 +6,7 @@
 
 namespace ilang { 
 // TODO(yuex): include header.
-void IlaSim::sim_gen_tandem_s2() {
+void IlaSim::sim_gen_tandem_s4() {
   tandem_rtl_ = "../refinement/rtl_tmp.json";
   aux_pc_enable_ = true;
   header_ << header_indent_ << "uint32_t " << model_ptr_->name().str() << "_pc;" << std::endl;
@@ -15,7 +15,7 @@ void IlaSim::sim_gen_tandem_s2() {
   create_tandem_check_s4();
   create_ila_wrapper();  
   create_rtl_wrapper_s1();
-  create_default_tandem_cc();
+  create_model_default_cc();
 }
 
 void IlaSim::create_tandem_check_s4() {
