@@ -262,7 +262,10 @@ private:
   void int_var_width_scan();
 
   std::string export_dir_;
+  std::string export_top_dir_;  
   std::string systemc_path_;
+  std::string rtl_include_dir_;
+  std::string rtl_top_path_;  
 
   std::stringstream header_;
   std::stringstream mk_script_;

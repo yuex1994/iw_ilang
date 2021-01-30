@@ -18,7 +18,7 @@ void IlaSim::sim_gen_tandem_s2() {
 
 void IlaSim::create_tandem_check_s2() {
   std::ofstream outFile;
-  outFile.open(export_dir_ + model_ptr_->name().str() + "_tandem.cc");
+  outFile.open(export_top_dir_ + "src/tandem/" + model_ptr_->name().str() + "_tandem.cc");
   std::stringstream tandem_check;
   tandem_check.str("");
   std::string indent = "";
@@ -38,7 +38,7 @@ void IlaSim::create_rtl_wrapper_s2() {
 
 void IlaSim::create_rtl_wrapper_h_s2() {
   std::ofstream outFile;
-  outFile.open(export_dir_ + model_ptr_->name().str() + "_rtl.h");
+  outFile.open(export_dir_ + "src/tandem/" + model_ptr_->name().str() + "_rtl.h");
   std::stringstream rtl_wrapper;
   rtl_wrapper.str("");
   std::string indent = "";  
@@ -95,6 +95,38 @@ void IlaSim::create_rtl_class_s2(std::stringstream& rtl_wrapper, std::string& in
   create_rtl_next_cycle(rtl_wrapper, indent, av_check_at_cycle_end);
 }
 
+void IlaSim::create_tandem_cmake() {
+  std::ofstream outFile;
+  outFile.open(export_top_dir_ + "CMakeLists.cc");
+  std::stringstream cmake_info;
+  std::string proj_name = "tandem_" + model_ptr_->name().str();
+  std::string cxx_flags = "-O3";
+  std::string library_name = model_ptr->name().str() + "_src";
+  std::string tandem_name = "tandem-" + model_ptr->name().str() + "-exe";
+
+  cmake_info << "project(" + proj_name << ")" << std;:endl;
+  cmake_info << "set(CMAKE_CXX_FLAGS " << cxx_flags << ")" << std::endl;
+  cmake_info << "set(CMAKE_BUILD_TYPE Debug)" << std::endl;
+
+  cmake_info << "find_package(verilator)" << std::endl << std::endl;
+  
+  cmake_info << "AUX_SOURCE_DIRECTORY(" << export_top_dir_ << "${PROJECT_SOURCE_DIR}/src/ilated/ TANDEM_SRC)" << std::endl;
+  cmake_info << "AUX_SOURCE_DIRECTORY(" << export_top_dir_ << "${PROJECT_SOURCE_DIR}/src/tandem/ TANDEM_SRC)" << std::endl;
+  cmake_info << "add_library(" << library_name << " ${TANDEM_SRC})" << std::endl << std::endl;
+
+  cmake_info << "target_include_directories(" << library_name << " PUBLIC ${PROJECT_SOURCE_DIR}/include)" << std:endl << std::endl;
+
+  cmake_info << "verilate(" << library_name << std::endl;
+  cmake_info << "  " << "INCLUDE_DIRS " << rtl_include_dir_ << std::endl;
+  cmake_info << "  SOURCES"  << rtl_top_ << std::endl;
+  cmake_info << "  VERILATOR_ARGS --timescale \"1ns/10ps\" -O3" << std::endl;
+  cmake_info << ")" << std::endl << std::endl;
+
+  cmake_info << "add_executable(" << tandem_name << " __FILL_IN_MAIN_FILE__)" << std::endl;
+  cmake_info << "target_link_libraries(" << tandem_name << " PUBLIC " << library_name << ")" << std::endl;
+  cmake_info << "target_include_directories(" << tandem_name << " PUBLIC ${PROJECT_SOURCE_DIR}/include)" << std:endl << std::endl;
+
+}
 
 
 }
