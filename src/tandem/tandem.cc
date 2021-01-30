@@ -1,6 +1,8 @@
 #include <ilang/tandem/tandem.h>
 #include <ilang/ila/ast_fuse.h>
 #include <ilang/target-sc/ila_sim.h>
+#include <filesystem>
+
 
 namespace ilang {
   void TandemGenerator::set_tandem_av_check() {
@@ -32,6 +34,11 @@ namespace ilang {
     IlaSim ila_sim;
     ila_sim.set_instr_lvl_abs(model_ptr_);
     uint32_t scenario = (av_swap_enable_) ? 4 : (av_check_enable_) ? 2 : -1;
+    std::filesystem::create_directory(export_dir_);
+    std::filesystem::create_directory(export_dir_ + "include/");
+    std::filesystem::create_directory(export_dir_ + "src/");
+    std::filesystem::create_directory(export_dir_ + "src/ilated/");
+    std::filesystem::create_directory(export_dir_ + "src/tandem/");
     ila_sim.set_export_top_dir(export_dir_);
     ila_sim.set_rtl(rtl_include_dir_, rtl_top_path_);
     ila_sim.sim_gen(export_dir_ + "src/ilated/", false, true, true, false, scenario, tandem_ref_map_);
