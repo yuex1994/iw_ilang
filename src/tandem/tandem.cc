@@ -6,11 +6,11 @@
 
 
 namespace ilang {
-  void TandemGenerator::set_tandem_av_check() {
+  void TandemGenerator::enable_tandem_av_check() {
     av_check_enable_ = true;
   }
 
-  void TandemGenerator::set_tandem_av_swap() {
+  void TandemGenerator::enable_tandem_av_swap() {
     av_swap_enable_ = true;
   }
 

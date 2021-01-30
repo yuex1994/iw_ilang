@@ -14,8 +14,8 @@ namespace ilang {
   public:
     TandemGenerator() {}
     TandemGenerator(const InstrLvlAbsPtr& model_ptr) { model_ptr_ = model_ptr; }
-    void set_tandem_av_check();
-    void set_tandem_av_swap();
+    void enable_tandem_av_check();
+    void enable_tandem_av_swap();
     void set_ref_map(std::string tandem_ref_map);
     void set_ila(const InstrLvlAbsPtr& model_ptr);
     void set_export_path(std::string export_dir);
