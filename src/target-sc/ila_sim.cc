@@ -34,8 +34,7 @@ void IlaSim::sim_gen(std::string export_dir, bool external_mem, bool readable,
   sim_gen_state_update();
   sim_gen_execute_kernel();
   sim_gen_execute_invoke();
-  if (!tandem_verification_)
-    sim_gen_export();
+  sim_gen_export();
 }
 
 void IlaSim::sim_gen_init(std::string export_dir, bool external_mem,
@@ -69,11 +68,20 @@ void IlaSim::sim_gen_init(std::string export_dir, bool external_mem,
 
 void IlaSim::sim_gen_tandem() {
   switch (tandem_scenario_) {
-    case 1: sim_gen_tandem_s1(); break;
-    case 2: sim_gen_tandem_s2(); break;
-    case 3: sim_gen_tandem_s3(); break;
-    case 4: sim_gen_tandem_s4(); break;
-    default: break;
+  case 1:
+    sim_gen_tandem_s1();
+    break;
+  case 2:
+    sim_gen_tandem_s2();
+    break;
+  case 3:
+    sim_gen_tandem_s3();
+    break;
+  case 4:
+    sim_gen_tandem_s4();
+    break;
+  default:
+    break;
   }
 }
 
@@ -94,7 +102,8 @@ void IlaSim::sim_gen_init_header() {
               << std::endl;
       header_ << header_indent_ << get_exception_def(header_indent_);
       for (uint i = 0; i < model_ptr_->instr_num(); i++) {
-        header_ << header_indent_ << "#define " << model_ptr_->instr(i)->name().str() << " "
+        header_ << header_indent_ << "#define "
+                << model_ptr_->instr(i)->name().str() << " "
                 << std::to_string(i) << std::endl;
       }
       header_ << header_indent_ << "#endif" << std::endl;
@@ -204,18 +213,19 @@ void IlaSim::sim_gen_execute_kernel() {
                  << std::endl;
   if (tandem_verification_) {
     // execute_kernel << indent << "#ifdef " << kTandemMacro << std::endl;
-    execute_kernel << indent << "void " << model_ptr_->name() << "::compute(" << kRTLSimType << "* v) {"
-                   << std::endl;    
+    execute_kernel << indent << "void " << model_ptr_->name() << "::compute("
+                   << kRTLSimType << "* v) {" << std::endl;
     increase_indent(indent);
     execute_kernel << indent << "tandem_f_ptr = -1;" << std::endl;
-    decrease_indent(indent); 
+    decrease_indent(indent);
     // execute_kernel << indent << "#else" << std::endl;
-    // execute_kernel << indent << "void " << model_ptr_->name() << "::compute() {"
-                  //  << std::endl;
+    // execute_kernel << indent << "void " << model_ptr_->name() << "::compute()
+    // {"
+    //  << std::endl;
     // execute_kernel << indent << "#endif" << std::endl;
-  } else 
+  } else
     execute_kernel << indent << "void " << model_ptr_->name() << "::compute() {"
-      << std::endl;
+                   << std::endl;
   increase_indent(indent);
   if (EXTERNAL_MEM_) {
     execute_write_external_mem(execute_kernel, indent);
@@ -236,7 +246,7 @@ void IlaSim::sim_gen_execute_kernel() {
   if (!qemu_device_)
     execute_write_output(execute_kernel, indent);
   decrease_indent(indent);
-  if (tandem_scenario_ == 2) 
+  if (tandem_scenario_ == 2)
     execute_tandem_s2(execute_kernel, indent);
   else if (tandem_scenario_ == 3)
     execute_tandem_s3(execute_kernel, indent);
@@ -270,6 +280,12 @@ void IlaSim::sim_gen_execute_invoke() {
 
 void IlaSim::sim_gen_export() {
   std::ofstream outFile;
+  if (tandem_verification_) {
+    outFile.open(export_top_dir_ + "include/" + model_ptr_->name.str() + ".h");
+    outFile << header_.rdbuf();
+    outFile.close();
+    return;
+  }
   outFile.open(export_dir_ + model_ptr_->name().str() + ".h");
   outFile << header_.rdbuf();
   outFile.close();

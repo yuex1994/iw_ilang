@@ -39,7 +39,7 @@ void IlaSim::create_rtl_wrapper_s2() {
 
 void IlaSim::create_rtl_wrapper_h_s2() {
   std::ofstream outFile;
-  outFile.open(export_dir_ + "src/tandem/" + model_ptr_->name().str() + "_rtl.h");
+  outFile.open(export_top_dir_ + "include/" + model_ptr_->name().str() + "_rtl_monitor.h");
   std::stringstream rtl_wrapper;
   rtl_wrapper.str("");
   std::string indent = "";  
@@ -74,7 +74,7 @@ void IlaSim::create_rtl_class_header_s2(std::stringstream& rtl_wrapper, std::str
 
 void IlaSim::create_rtl_wrapper_cc_s2() {
   std::ofstream outFile;
-  outFile.open(export_dir_ + model_ptr_->name().str() + "_rtl.cc");
+  outFile.open(export_top_dir_ + "src/tandem/" + model_ptr_->name().str() + "_rtl_monitor.cc");
   std::stringstream rtl_wrapper_cc;
   rtl_wrapper_cc.str("");
   std::string indent = "";
