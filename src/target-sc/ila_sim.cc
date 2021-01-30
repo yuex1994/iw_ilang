@@ -281,7 +281,7 @@ void IlaSim::sim_gen_execute_invoke() {
 void IlaSim::sim_gen_export() {
   std::ofstream outFile;
   if (tandem_verification_) {
-    outFile.open(export_top_dir_ + "include/" + model_ptr_->name.str() + ".h");
+    outFile.open(export_top_dir_ + "include/" + model_ptr_->name().str() + ".h");
     outFile << header_.rdbuf();
     outFile.close();
     return;
