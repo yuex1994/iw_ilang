@@ -34,7 +34,8 @@ void IlaSim::sim_gen(std::string export_dir, bool external_mem, bool readable,
   sim_gen_state_update();
   sim_gen_execute_kernel();
   sim_gen_execute_invoke();
-  sim_gen_export();
+  if (!tandem_verification_)
+    sim_gen_export();
 }
 
 void IlaSim::sim_gen_init(std::string export_dir, bool external_mem,
