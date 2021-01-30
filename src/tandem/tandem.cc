@@ -3,6 +3,8 @@
 #include <ilang/target-sc/ila_sim.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <filesystem.h>
+namespace fs = std::filesystem;
 
 
 namespace ilang {
@@ -35,16 +37,12 @@ namespace ilang {
     IlaSim ila_sim;
     ila_sim.set_instr_lvl_abs(model_ptr_);
     uint32_t scenario = (av_swap_enable_) ? 4 : (av_check_enable_) ? 2 : -1;
-    mkdir(export_dir_.c_str(), 0x644);
-    chmod(export_dir_.c_str(), 0x644);
-    mkdir((export_dir_ + "include/").c_str(), 0x644);
-    chmod((export_dir_ + "include/").c_str(), 0x644);
-    mkdir((export_dir_ + "src/").c_str(), 0x644);
-    chmod((export_dir_ + "src/").c_str(), 0x644);
-    mkdir((export_dir_ + "src/ilated/").c_str(), 0x644);
-    chmod((export_dir_ + "src/ilated/").c_str(), 0x644);
-    mkdir((export_dir_ + "src/tandem/").c_str(), 0x644);
-    chmod((export_dir_ + "src/tandem/").c_str(), 0x644);
+    mkdir(export_dir_.c_str(), 0x777);
+    mkdir((export_dir_ + "include/").c_str(), 0x777);
+    mkdir((export_dir_ + "src/").c_str(), 0x777);
+    mkdir((export_dir_ + "src/ilated/").c_str(), 0x777);
+    mkdir((export_dir_ + "src/tandem/").c_str(), 0x777);
+    fs::copy(rtl_include_dir_, export_dir_ + "verilog");
 
     ila_sim.set_export_top_dir(export_dir_);
     ila_sim.set_rtl(rtl_include_dir_, rtl_top_path_);
