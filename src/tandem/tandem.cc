@@ -36,7 +36,7 @@ namespace ilang {
     ila_sim.set_instr_lvl_abs(model_ptr_);
     uint32_t scenario = (av_swap_enable_) ? 4 : (av_check_enable_) ? 2 : -1;
     mkdir(export_dir_.c_str(), 0x644);
-    chmod(export_dir_.c_str(), 0x644))
+    chmod(export_dir_.c_str(), 0x644));
     mkdir((export_dir_ + "include/").c_str(), 0x644);
     chmod((export_dir_ + "include/").c_str(), 0x644);
     mkdir((export_dir_ + "src/").c_str(), 0x644);
