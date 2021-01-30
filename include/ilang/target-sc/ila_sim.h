@@ -57,6 +57,13 @@ public:
                int tandem_scenario = -1,
                std::string tandem_ref_map = "");
 
+  void set_export_top_dir(std::string export_top_dir) {export_top_dir_ = export_top_dir;}
+  void set_rtl(std::string rtl_include_dir, std::string rtl_top_path) {
+    rtl_include_dir_ = rtl_include_dir;
+    rtl_top_path_ = rtl_top_path;    
+  }
+  
+
 private:
   // Initialize all member variables for a new simulator generation pass.
   void sim_gen_init(std::string export_dir, bool external_mem, bool readable,
@@ -115,6 +122,7 @@ private:
   void create_start_condition(std::stringstream& rtl_wrapper, std::string& indent);
   void create_tandem_checkpoint(std::stringstream& tandem_check, std::string& indent);
   void create_tandem_swap(std::stringstream& tandem_swap, std::string& indent);
+  void create_tandem_cmake();
 
   void create_check_state(std::stringstream& tandem_check, std::string& indent);
   void create_check_state_header();

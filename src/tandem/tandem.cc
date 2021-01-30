@@ -31,10 +31,9 @@ namespace ilang {
   void TandemGenerator::generate() {
     IlaSim ila_sim;
     ila_sim.set_instr_lvl_abs(model_ptr_);
-    uint32_t scenario = (av_swap) ? 4 : (av_check) ? 2 : -1;
-    ila_sim.export_top_dir_ = export_dir_;
-    ila_sim.rtl_include_dir_ = rtl_include_dir;
-    ila_sim.rtl_top_path_ = rtl_top_path_;
+    uint32_t scenario = (av_swap_) ? 4 : (av_check_) ? 2 : -1;
+    ila_sim.set_export_top_dir(export_dir_);
+    ila_sim.set_rtl(rtl_include_dir_, rtl_top_path_);
     ila_sim.sim_gen(export_dir_ + "src/ilated/", false, true, true, false, scenario, tandem_ref_map_);
   }
 

@@ -14,6 +14,7 @@ void IlaSim::sim_gen_tandem_s2() {
   create_ila_wrapper();  
   create_rtl_wrapper_s2();
   create_model_tandem_cc();
+  create_tandem_cmake();
 }
 
 void IlaSim::create_tandem_check_s2() {
