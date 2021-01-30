@@ -102,10 +102,10 @@ void IlaSim::create_tandem_cmake() {
   std::stringstream cmake_info;
   std::string proj_name = "tandem_" + model_ptr_->name().str();
   std::string cxx_flags = "-O3";
-  std::string library_name = model_ptr->name().str() + "_src";
-  std::string tandem_name = "tandem-" + model_ptr->name().str() + "-exe";
+  std::string library_name = model_ptr_->name().str() + "_src";
+  std::string tandem_name = "tandem-" + model_ptr_->name().str() + "-exe";
 
-  cmake_info << "project(" + proj_name << ")" << std;:endl;
+  cmake_info << "project(" + proj_name << ")" << std::endl;
   cmake_info << "set(CMAKE_CXX_FLAGS " << cxx_flags << ")" << std::endl;
   cmake_info << "set(CMAKE_BUILD_TYPE Debug)" << std::endl;
 
@@ -115,17 +115,17 @@ void IlaSim::create_tandem_cmake() {
   cmake_info << "AUX_SOURCE_DIRECTORY(" << export_top_dir_ << "${PROJECT_SOURCE_DIR}/src/tandem/ TANDEM_SRC)" << std::endl;
   cmake_info << "add_library(" << library_name << " ${TANDEM_SRC})" << std::endl << std::endl;
 
-  cmake_info << "target_include_directories(" << library_name << " PUBLIC ${PROJECT_SOURCE_DIR}/include)" << std:endl << std::endl;
+  cmake_info << "target_include_directories(" << library_name << " PUBLIC ${PROJECT_SOURCE_DIR}/include)" << std::endl << std::endl;
 
   cmake_info << "verilate(" << library_name << std::endl;
   cmake_info << "  " << "INCLUDE_DIRS " << rtl_include_dir_ << std::endl;
-  cmake_info << "  SOURCES"  << rtl_top_ << std::endl;
+  cmake_info << "  SOURCES"  << rtl_top_path_ << std::endl;
   cmake_info << "  VERILATOR_ARGS --timescale \"1ns/10ps\" -O3" << std::endl;
   cmake_info << ")" << std::endl << std::endl;
 
   cmake_info << "add_executable(" << tandem_name << " __FILL_IN_MAIN_FILE__)" << std::endl;
   cmake_info << "target_link_libraries(" << tandem_name << " PUBLIC " << library_name << ")" << std::endl;
-  cmake_info << "target_include_directories(" << tandem_name << " PUBLIC ${PROJECT_SOURCE_DIR}/include)" << std:endl << std::endl;
+  cmake_info << "target_include_directories(" << tandem_name << " PUBLIC ${PROJECT_SOURCE_DIR}/include)" << std::endl << std::endl;
 
 }
 
