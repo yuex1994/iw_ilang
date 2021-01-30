@@ -98,7 +98,7 @@ void IlaSim::sim_gen_init_header() {
     if (tandem_verification_) {
       header_ << "#define " << kTandemMacro << std::endl;
       header_ << "#ifdef " << kTandemMacro << std::endl;
-      header_ << "#include \"" << model_ptr_->name().str() << "_rtl.h\""
+      header_ << "#include \"" << model_ptr_->name().str() << "_rtl_monitor.h\""
               << std::endl;
       header_ << header_indent_ << get_exception_def(header_indent_);
       for (uint i = 0; i < model_ptr_->instr_num(); i++) {

@@ -122,7 +122,7 @@ void IlaSim::create_ila_wrapper() {
 
 void IlaSim::create_ila_wrapper_h() {
   std::ofstream outFile;
-  outFile.open(export_dir_ + model_ptr_->name().str() + "_ila.h");
+  outFile.open(export_top_dir_ + "include/" + model_ptr_->name().str() + "_ila_top.h");
   std::stringstream ila_wrapper_header;
   ila_wrapper_header.str("");
   std::string indent = "";  
@@ -133,7 +133,7 @@ void IlaSim::create_ila_wrapper_h() {
 
 void IlaSim::create_ila_wrapper_cc() {
   std::ofstream outFile;
-  outFile.open(export_dir_ + model_ptr_->name().str() + "_ila.cc");
+  outFile.open(export_dir_ + model_ptr_->name().str() + "_ila_top.cc");
   std::stringstream ila_wrapper_src;
   ila_wrapper_src.str("");
   std::string indent = "";  
@@ -162,7 +162,7 @@ void IlaSim::create_ilated_class_header(std::stringstream& ila_wrapper, std::str
 }
 
 void IlaSim::create_ilated_class(std::stringstream& ila_wrapper, std::string& indent) {
-  ila_wrapper << indent << "#include \"" << model_ptr_->name().str() << "_ila.h\"" << std::endl;
+  ila_wrapper << indent << "#include \"" << model_ptr_->name().str() << "_ila_top.h\"" << std::endl;
   // create_i_in(ila_wrapper, indent);
   create_input_v_to_i(ila_wrapper, indent);  
   ila_wrapper << indent << "Ilated::Ilated() {" << std::endl;
