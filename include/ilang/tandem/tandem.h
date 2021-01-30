@@ -32,8 +32,8 @@ namespace ilang {
     // void create_spec_simulator(std::string& export_dir);
     // void adapt_template(std::string& template_dir, std::string& export_dir);
     InstrLvlAbsPtr model_ptr_;
-    bool av_check_enable_;
-    bool av_swap_enable_;
+    bool av_check_enable_ = false;
+    bool av_swap_enable_ = false;
     std::string tandem_ref_map_;
     std::string rtl_include_dir_;
     std::string rtl_top_path_;
