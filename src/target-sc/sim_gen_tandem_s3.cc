@@ -117,7 +117,7 @@ void IlaSim::create_ilated_class_header_s3(std::stringstream& ila_wrapper,
   create_i_in(ila_wrapper, indent);
   ila_wrapper << indent << "class v_in;" << std::endl;
   ila_wrapper << indent << "i_in input_v_to_i(v_in& test_v);" << std::endl;
-  ila_wrapper << indent << "class RTLVerilated;" << std::endl;
+  ila_wrapper << indent << "class " << kRTLSimType << ";" << std::endl;
   ila_wrapper << indent << "class Ilated {" << std::endl;
   ila_wrapper << indent << "public:" << std::endl;
   increase_indent(indent);
@@ -125,7 +125,7 @@ void IlaSim::create_ilated_class_header_s3(std::stringstream& ila_wrapper,
   ila_wrapper << indent << "void i_input(i_in t_i);" << std::endl;
   ila_wrapper << indent << "void v_input(v_in t_v);" << std::endl;
   ila_wrapper << indent << "~Ilated();" << std::endl;
-  ila_wrapper << indent << "void next_instr(RTLVerilated* v);" << std::endl;
+  ila_wrapper << indent << "void next_instr(" << kRTLSimType << "* v);" << std::endl;
   ila_wrapper << indent << model_ptr_->name().str() << "* i_top;" << std::endl;
   decrease_indent(indent);
   ila_wrapper << indent << "};" << std::endl;

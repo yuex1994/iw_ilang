@@ -55,15 +55,15 @@ void IlaSim::create_rtl_class_header_s1(std::stringstream& rtl_wrapper,
                                         std::string& indent) {
   auto rtl_map = load_json(tandem_rtl_);
   auto rtl_name = rtl_map["VERILOG"].get<std::string>();
-  rtl_wrapper << indent << "class RTLVerilated {" << std::endl;
+  rtl_wrapper << indent << "class " << kRTLSimType << " {" << std::endl;
   rtl_wrapper << indent << "public:" << std::endl;
   increase_indent(indent);
   rtl_wrapper << indent << "V" << rtl_name << "*v_top;" << std::endl;
   rtl_wrapper << indent << "Ilated* i;" << std::endl;
-  rtl_wrapper << indent << "RTLVerilated(Ilated* ilated);" << std::endl;
+  rtl_wrapper << indent << "" << kRTLSimType << "(Ilated* ilated);" << std::endl;
   rtl_wrapper << indent << "bool start_condition(v_in t_v);" << std::endl;
   rtl_wrapper << indent << "void v_input(v_in t_v);" << std::endl;
-  rtl_wrapper << indent << " ~RTLVerilated();" << std::endl;
+  rtl_wrapper << indent << " ~" << kRTLSimType << "();" << std::endl;
   rtl_wrapper << indent << "void next_cycle();" << std::endl;
   decrease_indent(indent);
   rtl_wrapper << indent << "};" << std::endl;
@@ -95,7 +95,7 @@ void IlaSim::create_rtl_input(std::stringstream& rtl_wrapper,
                               std::string& indent) {
   auto rtl_map = load_json(tandem_rtl_);
   auto rtl_inputs = rtl_map["verilog inputs"];
-  rtl_wrapper << indent << "void RTLVerilated::v_input(v_in t_v) {"
+  rtl_wrapper << indent << "void " << kRTLSimType << "::v_input(v_in t_v) {"
               << std::endl;
   increase_indent(indent);
   rtl_wrapper << indent << "if (start_condition(t_v)) {" << std::endl;

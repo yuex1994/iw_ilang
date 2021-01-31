@@ -60,16 +60,18 @@ void IlaSim::create_rtl_class_header_s2(std::stringstream& rtl_wrapper,
                                         std::string& indent) {
   auto rtl_map = load_json(tandem_rtl_);
   auto rtl_name = rtl_map["VERILOG"].get<std::string>();
-  rtl_wrapper << indent << "class RTLVerilated {" << std::endl;
+  rtl_wrapper << indent << "class " << kRTLSimType << " {" << std::endl;
   rtl_wrapper << indent << "public:" << std::endl;
   increase_indent(indent);
   rtl_wrapper << indent << "V" << rtl_name << "*v_top;" << std::endl;
   rtl_wrapper << indent << "Ilated* i;" << std::endl;
   rtl_wrapper << indent << "std::list<InstrMonitor*> i_m_list;" << std::endl;
-  rtl_wrapper << indent << "RTLVerilated(Ilated* ilated);" << std::endl;
+  rtl_wrapper << indent << "" << kRTLSimType << "();" << std::endl;
+  rtl_wrapper << indent << "" << kRTLSimType << "(Ilated* ilated);" << std::endl;
   rtl_wrapper << indent << "bool start_condition(v_in t_v);" << std::endl;
   rtl_wrapper << indent << "void v_input(v_in t_v);" << std::endl;
-  rtl_wrapper << indent << " ~RTLVerilated();" << std::endl;
+  rtl_wrapper << indent << "void register_ilated(Ilated* i);" << std::endl;
+  rtl_wrapper << indent << " ~" << kRTLSimType << "();" << std::endl;
   rtl_wrapper << indent << "void next_cycle();" << std::endl;
   decrease_indent(indent);
   rtl_wrapper << indent << "};" << std::endl;
@@ -100,6 +102,26 @@ void IlaSim::create_rtl_class_s2(std::stringstream& rtl_wrapper,
   create_rtl_input_with_monitor(rtl_wrapper, indent);
   create_rtl_destructor(rtl_wrapper, indent);
   create_rtl_next_cycle(rtl_wrapper, indent, av_check_at_cycle_end);
+  create_s2_rtl_constructor(rtl_wrapper, indent);
+}
+
+void IlaSim::create_s2_rtl_constructor(std::stringstream& rtl_wrapper,
+                                       std::string& indent) {
+  auto rtl_map = load_json(tandem_rtl_);
+  auto rtl_name = rtl_map["VERILOG"].get<std::string>();
+  rtl_wrapper << indent << "" << kRTLSimType << "::" << kRTLSimType << "() {"
+              << std::endl;
+  increase_indent(indent);
+  rtl_wrapper << indent << "v_top = new V" << rtl_name << "(\"v_top\");"
+              << std::endl;
+  decrease_indent(indent);
+  rtl_wrapper << indent << "}" << std::endl << std::endl;
+
+  rtl_wrapper << indent << "void " << kRTLSimType << "::register_ilated(Ilated* i) {" << std::endl;
+  increase_indent(indent);
+  rtl_wrapper << indent << "i = ilated;" << std::endl;
+  decrease_indent(indent);
+  rtl_wrapper << indent << "}" << std::endl << std::endl;
 }
 
 void IlaSim::create_tandem_cmake() {

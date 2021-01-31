@@ -205,7 +205,7 @@ void IlaSim::state_update_return(std::stringstream& state_update_function,
                                  const ExprPtr& updated_state,
                                  const ExprPtr& update_expr) {
   std::string return_str;
-  std::cout << "return a: " << return_str << std::endl;
+  // std::cout << "return a: " << return_str << std::endl;
   if (GetUidExpr(update_expr) == AST_UID_EXPR::VAR)
     return_str =
         update_expr->host()->name().str() + "_" + update_expr->name().str();
@@ -220,8 +220,8 @@ void IlaSim::state_update_return(std::stringstream& state_update_function,
     else
       return_str = "";
   }
-  std::cout << "return b: " << return_str << std::endl;
-  std::cout << "expr: " << indent << updated_state->host()->name().str() << std::endl;
+  // std::cout << "return b: " << return_str << std::endl;
+  // std::cout << "expr: " << indent << updated_state->host()->name().str() << std::endl;
   if (!updated_state->is_mem()) {
     state_update_function << indent << updated_state->host()->name().str() 
                           << "_" << updated_state->name().str() << "_next = "

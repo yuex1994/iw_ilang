@@ -312,7 +312,7 @@ private:
   std::string e_class_name_;
 
   const std::string kTandemMacro = "TANDEM_VERIFICATION";
-  const std::string kRTLSimType = "RTLVerilated";
+  const std::string kRTLSimType = "TandemController";
   InstrLvlAbsPtr model_ptr_;
 };
 

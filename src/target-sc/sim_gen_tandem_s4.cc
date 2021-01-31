@@ -93,7 +93,7 @@ void IlaSim::create_swap_state(std::stringstream& tandem_swap,
         }
       }
     } catch (nlohmann::detail::out_of_range& e) {
-      std::cout << "out of range: " << e.what() << '\n';
+      // std::cout << "out of range: " << e.what() << '\n';
       continue;
     }
   }

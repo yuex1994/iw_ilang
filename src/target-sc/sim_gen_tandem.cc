@@ -73,7 +73,7 @@ void IlaSim::create_check_state(std::stringstream& tandem_check,
       }
       decrease_indent(indent);
     } catch (nlohmann::detail::out_of_range& e) {
-      std::cout << "out of range: " << e.what() << '\n';
+      // std::cout << "out of range: " << e.what() << '\n';
       continue;
     }
     tandem_check << indent << "}" << std::endl;
@@ -165,7 +165,7 @@ void IlaSim::create_ilated_class_header(std::stringstream& ila_wrapper,
   create_i_in(ila_wrapper, indent);
   ila_wrapper << indent << "class v_in;" << std::endl;
   ila_wrapper << indent << "i_in input_v_to_i(v_in& test_v);" << std::endl;
-  ila_wrapper << indent << "class RTLVerilated;" << std::endl;
+  ila_wrapper << indent << "class " << kRTLSimType << ";" << std::endl;
   ila_wrapper << indent << "class Ilated {" << std::endl;
   ila_wrapper << indent << "public:" << std::endl;
   increase_indent(indent);
@@ -173,7 +173,8 @@ void IlaSim::create_ilated_class_header(std::stringstream& ila_wrapper,
   ila_wrapper << indent << "void i_input(i_in t_i);" << std::endl;
   ila_wrapper << indent << "void v_input(v_in t_v);" << std::endl;
   ila_wrapper << indent << "~Ilated();" << std::endl;
-  ila_wrapper << indent << "void next_instr(RTLVerilated* v);" << std::endl;
+  ila_wrapper << indent << "void next_instr(" << kRTLSimType << "* v);"
+              << std::endl;
   ila_wrapper << indent << model_ptr_->name().str() << "* i_top;" << std::endl;
   decrease_indent(indent);
   ila_wrapper << indent << "};" << std::endl;
@@ -273,7 +274,7 @@ void IlaSim::create_input_v_to_i(std::stringstream& ila_wrapper,
 
 void IlaSim::create_ila_next_instr(std::stringstream& ila_wrapper,
                                    std::string& indent) {
-  ila_wrapper << indent << "void Ilated::next_instr(RTLVerilated* v) {"
+  ila_wrapper << indent << "void Ilated::next_instr(" << kRTLSimType << "* v) {"
               << std::endl;
   increase_indent(indent);
   ila_wrapper << indent << "i_top->compute(v);" << std::endl;
@@ -287,8 +288,8 @@ void IlaSim::create_instr_monitor_class_header(std::stringstream& rtl_wrapper,
   rtl_wrapper << indent << "public:" << std::endl;
   increase_indent(indent);
   rtl_wrapper << indent << "virtual void pass_cycle() = 0;" << std::endl;
-  rtl_wrapper << indent << "virtual bool is_finish(RTLVerilated* v) = 0;"
-              << std::endl;
+  rtl_wrapper << indent << "virtual bool is_finish(" << kRTLSimType
+              << "* v) = 0;" << std::endl;
   rtl_wrapper << indent << "v_in t_v_;" << std::endl;
   decrease_indent(indent);
   rtl_wrapper << indent << "};" << std::endl;
@@ -307,7 +308,8 @@ void IlaSim::create_instr_monitor_class_header(std::stringstream& rtl_wrapper,
                 << std::endl;
     rtl_wrapper << indent << "void pass_cycle();" << std::endl;
 
-    rtl_wrapper << indent << "bool is_finish(RTLVerilated* v);" << std::endl;
+    rtl_wrapper << indent << "bool is_finish(" << kRTLSimType << "* v);"
+                << std::endl;
     decrease_indent(indent);
     rtl_wrapper << indent << "};" << std::endl << std::endl;
   }
@@ -345,8 +347,8 @@ void IlaSim::create_instr_monitor_class(std::stringstream& rtl_wrapper,
     decrease_indent(indent);
     rtl_wrapper << indent << "}" << std::endl << std::endl;
 
-    rtl_wrapper << indent << "bool InstrMonitor" << instr_name
-                << "::is_finish(RTLVerilated* v) {" << std::endl;
+    rtl_wrapper << indent << "bool InstrMonitor" << instr_name << "::is_finish("
+                << kRTLSimType << "* v) {" << std::endl;
     increase_indent(indent);
     if (item.contains("ready bound")) {
       rtl_wrapper << indent << "return (cycle_left == 0);" << std::endl;
@@ -426,8 +428,8 @@ void IlaSim::create_rtl_constructor(std::stringstream& rtl_wrapper,
                                     std::string& indent) {
   auto rtl_map = load_json(tandem_rtl_);
   auto rtl_name = rtl_map["VERILOG"].get<std::string>();
-  rtl_wrapper << indent << "RTLVerilated::RTLVerilated(Ilated* ilated) {"
-              << std::endl;
+  rtl_wrapper << indent << kRTLSimType << "::" << kRTLSimType
+              << "(Ilated* ilated) {" << std::endl;
   increase_indent(indent);
   rtl_wrapper << indent << "v_top = new V" << rtl_name << "(\"v_top\");"
               << std::endl;
@@ -438,7 +440,8 @@ void IlaSim::create_rtl_constructor(std::stringstream& rtl_wrapper,
 
 void IlaSim::create_rtl_destructor(std::stringstream& rtl_wrapper,
                                    std::string& indent) {
-  rtl_wrapper << indent << " RTLVerilated::~RTLVerilated() {" << std::endl;
+  rtl_wrapper << indent << " " << kRTLSimType << "::~" << kRTLSimType << "() {"
+              << std::endl;
   increase_indent(indent);
   rtl_wrapper << indent << "delete v_top;" << std::endl;
   decrease_indent(indent);
@@ -449,8 +452,8 @@ void IlaSim::create_start_condition(std::stringstream& rtl_wrapper,
                                     std::string& indent) {
   auto rtl_map = load_json(tandem_rtl_);
   rtl_wrapper << std::endl;
-  rtl_wrapper << indent << "bool RTLVerilated::start_condition(v_in t_v) {"
-              << std::endl;
+  rtl_wrapper << indent << "bool " << kRTLSimType
+              << "::start_condition(v_in t_v) {" << std::endl;
   increase_indent(indent);
 
   if (!rtl_map.contains("start condition")) {
@@ -474,7 +477,7 @@ void IlaSim::create_rtl_input_with_monitor(std::stringstream& rtl_wrapper,
                                            std::string& indent) {
   auto rtl_map = load_json(tandem_rtl_);
   auto rtl_inputs = rtl_map["verilog inputs"];
-  rtl_wrapper << indent << "void RTLVerilated::v_input(v_in t_v) {"
+  rtl_wrapper << indent << "void " << kRTLSimType << "::v_input(v_in t_v) {"
               << std::endl;
   increase_indent(indent);
   rtl_wrapper << indent << "if (start_condition(t_v)) {" << std::endl;
@@ -496,7 +499,8 @@ void IlaSim::create_rtl_next_cycle(std::stringstream& rtl_wrapper,
   auto rtl_map = load_json(tandem_rtl_);
   std::string clk_signal = rtl_map["verilog clock"].get<std::string>();
   bool clk_edge = rtl_map["verilog clock edge"].get<bool>();
-  rtl_wrapper << indent << "void RTLVerilated::next_cycle() {" << std::endl;
+  rtl_wrapper << indent << "void " << kRTLSimType << "::next_cycle() {"
+              << std::endl;
   increase_indent(indent);
   rtl_wrapper << indent << "v_top->clk = " << ((clk_edge) ? 0 : 1) << ";"
               << std::endl;
@@ -559,7 +563,7 @@ void IlaSim::create_rtl_wrapper_def(std::stringstream& rtl_wrapper,
     rtl_wrapper << indent << "#include <V" << it->get<std::string>() << ".h>"
                 << std::endl;
   rtl_wrapper << indent << "class Ilated;" << std::endl;
-  rtl_wrapper << indent << "class RTLVerilated;" << std::endl;
+  rtl_wrapper << indent << "class " << kRTLSimType << ";" << std::endl;
 }
 
 nlohmann::json IlaSim::load_json(std::string file_name) {
