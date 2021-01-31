@@ -115,6 +115,7 @@ private:
   void create_rtl_class_header_s2(std::stringstream& rtl_wrapper, std::string& indent);
   void create_rtl_in(std::stringstream& rtl_wrapper, std::string& indent);
   void create_rtl_constructor(std::stringstream& rtl_wrapper, std::string& indent);
+  void create_s2_rtl_constructor(std::stringstream& rtl_wrapper, std::string& indent);
   void create_rtl_destructor(std::stringstream& rtl_wrapper, std::string& indent);
   void create_rtl_input(std::stringstream& rtl_wrapper, std::string& indent);
   void create_rtl_input_with_monitor(std::stringstream& rtl_wrapper, std::string& indent);
