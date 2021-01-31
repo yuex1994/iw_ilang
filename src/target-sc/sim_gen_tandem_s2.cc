@@ -126,7 +126,8 @@ void IlaSim::create_tandem_cmake() {
   cmake_info << "add_executable(" << tandem_name << " __FILL_IN_MAIN_FILE__)" << std::endl;
   cmake_info << "target_link_libraries(" << tandem_name << " PUBLIC " << library_name << ")" << std::endl;
   cmake_info << "target_include_directories(" << tandem_name << " PUBLIC ${PROJECT_SOURCE_DIR}/include)" << std::endl << std::endl;
-
+  outFile << cmake_info.rdbuf();
+  outFile.close();    
 }
 
 
