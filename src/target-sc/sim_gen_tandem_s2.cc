@@ -105,21 +105,22 @@ void IlaSim::create_tandem_cmake() {
   std::string library_name = model_ptr_->name().str() + "_src";
   std::string tandem_name = "tandem-" + model_ptr_->name().str() + "-exe";
 
+  cmake_info << "cmake_minimum_required(VERSION 3.8)" << std::endl;
   cmake_info << "project(" + proj_name << ")" << std::endl;
   cmake_info << "set(CMAKE_CXX_FLAGS " << cxx_flags << ")" << std::endl;
   cmake_info << "set(CMAKE_BUILD_TYPE Debug)" << std::endl;
 
   cmake_info << "find_package(verilator)" << std::endl << std::endl;
   
-  cmake_info << "AUX_SOURCE_DIRECTORY(" << export_top_dir_ << "${PROJECT_SOURCE_DIR}/src/ilated/ TANDEM_SRC)" << std::endl;
-  cmake_info << "AUX_SOURCE_DIRECTORY(" << export_top_dir_ << "${PROJECT_SOURCE_DIR}/src/tandem/ TANDEM_SRC)" << std::endl;
+  cmake_info << "AUX_SOURCE_DIRECTORY(${PROJECT_SOURCE_DIR}/src/ilated/ TANDEM_SRC)" << std::endl;
+  cmake_info << "AUX_SOURCE_DIRECTORY(${PROJECT_SOURCE_DIR}/src/tandem/ TANDEM_SRC)" << std::endl;
   cmake_info << "add_library(" << library_name << " ${TANDEM_SRC})" << std::endl << std::endl;
 
   cmake_info << "target_include_directories(" << library_name << " PUBLIC ${PROJECT_SOURCE_DIR}/include)" << std::endl << std::endl;
 
   cmake_info << "verilate(" << library_name << std::endl;
   cmake_info << "  " << "INCLUDE_DIRS " << rtl_include_dir_ << std::endl;
-  cmake_info << "  SOURCES"  << rtl_top_path_ << std::endl;
+  cmake_info << "  SOURCES "  << rtl_top_path_ << std::endl;
   cmake_info << "  VERILATOR_ARGS --timescale \"1ns/10ps\" -O3" << std::endl;
   cmake_info << ")" << std::endl << std::endl;
 
