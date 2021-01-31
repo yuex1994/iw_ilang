@@ -98,7 +98,7 @@ void IlaSim::create_rtl_class_s2(std::stringstream& rtl_wrapper, std::string& in
 
 void IlaSim::create_tandem_cmake() {
   std::ofstream outFile;
-  outFile.open(export_top_dir_ + "CMakeLists.cc");
+  outFile.open(export_top_dir_ + "CMakeLists.txt");
   std::stringstream cmake_info;
   std::string proj_name = "tandem_" + model_ptr_->name().str();
   std::string cxx_flags = "-O3";
