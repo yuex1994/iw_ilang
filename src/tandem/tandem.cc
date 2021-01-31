@@ -43,7 +43,6 @@ namespace ilang {
     fs::create_directories((export_dir_ + "src/").c_str());
     fs::create_directories((export_dir_ + "src/ilated/").c_str());
     fs::create_directories((export_dir_ + "src/tandem/").c_str());
-    // fs::copy(rtl_include_dir_, export_dir_ + "verilog");
 
     ila_sim.set_export_top_dir(export_dir_);
     ila_sim.set_rtl(rtl_include_dir_, rtl_top_path_);
