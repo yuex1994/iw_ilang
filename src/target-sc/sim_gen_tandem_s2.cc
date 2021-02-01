@@ -67,10 +67,10 @@ void IlaSim::create_rtl_class_header_s2(std::stringstream& rtl_wrapper,
   rtl_wrapper << indent << "Ilated* i;" << std::endl;
   rtl_wrapper << indent << "std::list<InstrMonitor*> i_m_list;" << std::endl;
   rtl_wrapper << indent << "" << kRTLSimType << "();" << std::endl;
-  rtl_wrapper << indent << "" << kRTLSimType << "(Ilated* ilated);" << std::endl;
+  rtl_wrapper << indent << "" << kRTLSimType << "(Ilated* i);" << std::endl;
   rtl_wrapper << indent << "bool start_condition(v_in t_v);" << std::endl;
   rtl_wrapper << indent << "void v_input(v_in t_v);" << std::endl;
-  rtl_wrapper << indent << "void register_ilated(Ilated* i);" << std::endl;
+  rtl_wrapper << indent << "void register_ilated(Ilated* ilated);" << std::endl;
   rtl_wrapper << indent << " ~" << kRTLSimType << "();" << std::endl;
   rtl_wrapper << indent << "void next_cycle();" << std::endl;
   decrease_indent(indent);
@@ -117,7 +117,7 @@ void IlaSim::create_s2_rtl_constructor(std::stringstream& rtl_wrapper,
   decrease_indent(indent);
   rtl_wrapper << indent << "}" << std::endl << std::endl;
 
-  rtl_wrapper << indent << "void " << kRTLSimType << "::register_ilated(Ilated* i) {" << std::endl;
+  rtl_wrapper << indent << "void " << kRTLSimType << "::register_ilated(Ilated* ilated) {" << std::endl;
   increase_indent(indent);
   rtl_wrapper << indent << "i = ilated;" << std::endl;
   decrease_indent(indent);
