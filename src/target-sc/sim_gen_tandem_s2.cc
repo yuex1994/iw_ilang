@@ -85,7 +85,7 @@ void IlaSim::create_rtl_wrapper_cc_s2() {
   rtl_wrapper_cc.str("");
   std::string indent = "";
   rtl_wrapper_cc << "#include \"" << model_ptr_->name().str() << "_ila_top.h\""
-                 << std::endl;
+                 << std::endl << std::endl << std::endl;
   create_instr_monitor_class(rtl_wrapper_cc, indent);
   create_instr_monitor_instance(rtl_wrapper_cc, indent);
   create_rtl_class_s2(rtl_wrapper_cc, indent);

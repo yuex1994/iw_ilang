@@ -76,7 +76,7 @@ void IlaSim::create_check_state(std::stringstream& tandem_check,
       // std::cout << "out of range: " << e.what() << '\n';
       continue;
     }
-    tandem_check << indent << "}" << std::endl;
+    tandem_check << indent << "}" << std::endl << std::endl;
   }
 
   tandem_check << indent << "void " << model_ptr_->name().str()
@@ -92,7 +92,7 @@ void IlaSim::create_check_state(std::stringstream& tandem_check,
     }
   }
   decrease_indent(indent);
-  tandem_check << indent << "}" << std::endl;
+  tandem_check << indent << "}" << std::endl << std::endl;
 }
 
 void IlaSim::create_check_instr_header() {
@@ -126,7 +126,7 @@ void IlaSim::create_check_instr(std::stringstream& tandem_check,
       }
     }
     decrease_indent(indent);
-    tandem_check << indent << "}" << std::endl;
+    tandem_check << indent << "}" << std::endl << std::endl;
   }
 }
 
@@ -333,7 +333,7 @@ void IlaSim::create_instr_monitor_class(std::stringstream& rtl_wrapper,
       rtl_wrapper << indent << "cycle_left = -1;" << std::endl;
     }
     decrease_indent(indent);
-    rtl_wrapper << indent << "}" << std::endl;
+    rtl_wrapper << indent << "}" << std::endl << std::endl;
 
     rtl_wrapper << indent << "void InstrMonitor" << instr_name
                 << "::pass_cycle() {" << std::endl;
@@ -362,7 +362,7 @@ void IlaSim::create_instr_monitor_class(std::stringstream& rtl_wrapper,
       rtl_wrapper << indent << "return cond;" << std::endl;
     }
     decrease_indent(indent);
-    rtl_wrapper << indent << "}" << std::endl;
+    rtl_wrapper << indent << "}" << std::endl << std::endl << std::endl;
   }
 }
 
